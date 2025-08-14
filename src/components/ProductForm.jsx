@@ -38,8 +38,8 @@ const AddProductForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#ffe1f0] px-4 py-10">
-      <div className="w-full max-w-3xl bg-[#fdf9f9] shadow-lg rounded-2xl p-8 md:p-10">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-3xl bg-white shadow-lg rounded-2xl p-8 md:p-10">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-[#663333]">Add New Product</h2>
           <p className="text-gray-600 mt-2 text-sm">

@@ -37,12 +37,10 @@ const AuthProvider = ({ children }) => {
         toast.success("Login Successful")
       })
       .catch((err) => {
-        err?.response
-          ? toast.error(err.response.data.message)
-          : toast.error("An error occured");
-          console.log(err.response?.data?.message);
-          
-      })
+        const errorMsg = err?.response?.data?.message || "An error occurred, Check your credentials and try again ";
+        toast.error(errorMsg);
+        console.log(errorMsg);
+        })
       .finally(() => {
         setLoading(false);
       });

@@ -38,9 +38,7 @@ const SignIn = () => {
           
           {/* Logo */}
           <div className="flex justify-center mb-4">
-            <Link to="/">
               <img src={logo} alt="company-logo" className="h-12 md:h-16" />
-            </Link>
           </div>
 
           {/* Title */}
@@ -93,26 +91,18 @@ const SignIn = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#663333] text-white hover:bg-white hover:text-[#663333] py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-[#663333] transition duration-300 font-medium border border-[#663333]"
+              className="w-full bg-[#663333] text-white  hover:bg-[#ffe1f0] hover:text-[#663333] cursor-pointer py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-[#663333] transition duration-300 font-medium border border-[#663333]"
               disabled={loading}
             >
               {loading ? (
                 <div className="flex justify-center items-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-3 border-gray-400 "></div>
                 </div>
               ) : (
                 "Login"
               )}
             </button>
 
-            <p className="text-sm text-center">
-              Don't have an account?{" "}
-              <Link to={"/signup"}>
-                <span className="underline font-bold hover:text-pink-600">
-                  Register Now
-                </span>
-              </Link>
-            </p>
           </form>
         </div>
       </div>
