@@ -26,7 +26,7 @@ const Layout = () => {
             <Navbar />
             <div className="flex">
               <Sidebar />
-              <main className="flex-1 px-4 md:px-6 py-4 lg:px-8 lg:py-6 bg-[#fdf9f9] max-h-[95vh] overflow-y-auto">
+              <main className="flex-1 pl-4 py-4 lg:py-6 bg-[#fdf9f9] max-h-[95vh] overflow-y-auto">
                 <Outlet />
               </main>
             </div>

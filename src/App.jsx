@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 const App = () => {
   return (
     <>
-      <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+      <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar={true} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       <RouterProvider router={Router} />
     </>
   );

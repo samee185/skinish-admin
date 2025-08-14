@@ -73,7 +73,7 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4">
         {/* Sales Chart */}
         <div className="p-6 bg-white rounded-2xl shadow-md border border-[#ffe1f0]">
           <h2 className="text-lg font-semibold text-[#663333] mb-4">
