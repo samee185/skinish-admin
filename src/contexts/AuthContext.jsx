@@ -23,7 +23,7 @@ const AuthProvider = ({ children }) => {
   const login = async (data) => {
     setLoading(true);
     axios
-      .post(`${apiUrl}/auth/admin-login`, data, {
+      .post(`${apiUrl}/auth/admin/login`, data, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -33,13 +33,13 @@ const AuthProvider = ({ children }) => {
         setUser(res.data.data.user);
         localStorage.setItem("token", res.data.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.data.user));
-        navigate("/dashboard");
-        // toast.success("Login Successful")
+        navigate("/");
+        toast.success("Login Successful")
       })
       .catch((err) => {
         err?.response
-          ? toast.error(err.response.data.message):
-          // : toast.error("An error occured");
+          ? toast.error(err.response.data.message)
+          : toast.error("An error occured");
           console.log(err.response?.data?.message);
           
       })
