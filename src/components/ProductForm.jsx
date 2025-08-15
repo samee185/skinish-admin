@@ -81,7 +81,7 @@ const AddProductForm = () => {
                 <label className="block font-semibold text-[#663333] mb-1">Category</label>
                 <Field
                   name="category"
-                  placeholder="e.g. Electronics"
+                  placeholder="e.g. Face"
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#ffe1f0] focus:border-[#663333] transition"
                 />
                 <ErrorMessage name="category" component="div" className="text-red-500 text-sm mt-1" />
@@ -125,22 +125,24 @@ const AddProductForm = () => {
               </div>
 
               {/* Featured & Bestseller */}
-              <div className="flex items-center space-x-3">
-                <Field
-                  type="checkbox"
-                  name="featured"
-                  className="w-5 h-5 text-[#663333] border-gray-300 rounded focus:ring-[#ffe1f0]"
-                />
-                <label className="text-[#663333] font-medium">Featured</label>
-              </div>
+              <div className="flex items-center justify-between flex-wrap md:flex-nowrap gap-4">
+                <div className="flex items-center space-x-3">
+                    <Field
+                    type="checkbox"
+                    name="featured"
+                    className="w-5 h-5 text-[#663333] border-gray-300 rounded focus:ring-[#ffe1f0]"
+                    />
+                    <label className="text-[#663333] font-medium">Featured</label>
+                </div>
 
-              <div className="flex items-center space-x-3">
-                <Field
-                  type="checkbox"
-                  name="bestseller"
-                  className="w-5 h-5 text-[#663333] border-gray-300 rounded focus:ring-[#ffe1f0]"
-                />
-                <label className="text-[#663333] font-medium">Bestseller</label>
+                <div className="flex items-center space-x-3">
+                    <Field
+                    type="checkbox"
+                    name="bestseller"
+                    className="w-5 h-5 text-[#663333] border-gray-300 rounded focus:ring-[#ffe1f0]"
+                    />
+                    <label className="text-[#663333] font-medium">Bestseller</label>
+                </div>
               </div>
 
               {/* Submit */}
