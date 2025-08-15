@@ -20,10 +20,14 @@ import {
   Legend,
 } from "recharts";
 import RecentOrders from "../components/RecentOrders";
+import { useAuth } from "../contexts/AuthContext";
+import { useProduct } from "../contexts/ProductContext";
 
 const Dashboard = () => {
   const [salesData, setSalesData] = useState([]);
   const [ordersData, setOrdersData] = useState([]);
+  const { user } = useAuth();
+  const { products } = useProduct();
   const today = new Date().toLocaleDateString();
 
   useEffect(() => {
@@ -50,6 +54,8 @@ const Dashboard = () => {
 
   return (
     <div className="p-2 space-y-8 bg-[#fdf9f9]">
+        {/* Header */}
+        <p className="text-[#663333] px-8">Welcome back,{user}</p>
       {/* Stats Row */}
       <div className="flex items-center justify-center flex-wrap lg:flex-nowrap gap-6">
         <DashboardCard

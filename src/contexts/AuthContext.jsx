@@ -33,6 +33,8 @@ const AuthProvider = ({ children }) => {
         setUser(res.data.data.user);
         localStorage.setItem("token", res.data.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.data.user));
+        // console.log("Login Successful", res.data.data.adminUser);
+        // console.log("Login Successful", res.data.data.token);
         navigate("/");
         toast.success("Login Successful")
       })
