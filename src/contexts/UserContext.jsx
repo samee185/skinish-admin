@@ -52,7 +52,7 @@ const UserProvider = ({ children }) => {
             Authorization: `Bearer ${token}`,
         },
       });
-      setUserProfile(response.data.data);
+      setUserProfile(response.data.data.user);
     //   toast.success("User profile fetched successfully!");
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
