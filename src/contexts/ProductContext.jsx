@@ -49,19 +49,22 @@ const ProductProvider = ({ children }) => {
   const createNewProduct = async (product) => {
     console.log("Product in context", product);
     const requestData = new FormData();
-    requestData.append("title", product.title);
-    requestData.append("price", product.price);
-    requestData.append("description", product.description);
+    requestData.append("name", product.name);
+    requestData.append("brand", product.brand);
     requestData.append("category", product.category);
-    requestData.append("subCategory", product.subCategory);
+    requestData.append("description", product.description);
+    requestData.append("price", product.price);
+    requestData.append("countInStock", product.countInStock);
+    requestData.append("bestseller", product.bestseller);
+    requestData.append("featured", product.isFeatured);
     // requestData.append("images", product.images);
     for (let i = 0; i < product.images.length; i++) {
       requestData.append('images', product.images[i]);
     }
-    console.log(product.images, requestData.get('images'));
+    // console.log(product.images, requestData.get('images'));
     setLoading(true);
     axios
-      .post(`${apiUrl}/products/create-product`, requestData, {
+      .post(`${apiUrl}/products`, requestData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
