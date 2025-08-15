@@ -51,11 +51,13 @@ const Dashboard = () => {
   }, []);
 
   const COLORS = ["#22c55e", "#facc15", "#ef4444"];
+  console.log(user?.firstName)
 
   return (
-    <div className="p-2 space-y-8 bg-[#fdf9f9]">
-        {/* Header */}
-        <p className="text-[#663333] px-8">Welcome back,{user}</p>
+    <div className="p-2 space-y-6 bg-[#fdf9f9]">
+      {/* Header */}
+      <p className="text-[#663333] text-lg px-8 capitalize">Welcome back, <span className="font-bold">{user?.firstName}</span></p>
+
       {/* Stats Row */}
       <div className="flex items-center justify-center flex-wrap lg:flex-nowrap gap-6">
         <DashboardCard
