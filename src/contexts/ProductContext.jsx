@@ -31,8 +31,8 @@ const ProductProvider = ({ children }) => {
         },
       })
       .then((res) => {
-        console.log(res.data.data.products);
-        setProducts(res.data.data.products);
+        console.log(res.data.products);
+        setProducts(res.data.products);
       })
       .catch((err) => {
         console.log(err);
