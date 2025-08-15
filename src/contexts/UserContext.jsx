@@ -76,10 +76,10 @@ const UserProvider = ({ children }) => {
         }
       );
       setUserProfile(response.data.data);
-    //   toast.success("User profile updated successfully!");
+      toast.success("User profile updated successfully!");
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
-      // toast.error(setError);
+      setError(err.response?.data?.message);
+      toast.error(err.response?.data?.message || "An error occurred");
       console.log(err.response?.data?.message)
     } finally {
       setLoading(false);
@@ -95,10 +95,10 @@ const UserProvider = ({ children }) => {
         },
       });
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
-    //   toast.success("User deleted successfully!");
+      toast.success("User deleted successfully!");
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
-      // toast.error(setError);
+      toast.error(err.response?.data?.message || "An error occurred");
       console.log(err.response?.data.message);
       
     } finally {

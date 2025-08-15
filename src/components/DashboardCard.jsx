@@ -19,7 +19,7 @@ const DashboardCard = ({ cardImg, title, currentDate, amount, className }) => {
         {/* Text Content */}
         <div className="flex flex-col text-gray-800">
           <h3 className="text-md font-semibold text-[#663333]">{title}</h3>
-          <p className="text-xl font-bold text-[#663333]">{amount}</p>
+          <p className="text-lg font-bold text-[#663333]">{amount}</p>
           <p className="text-sm text-gray-500">
             Last updated:{" "}
             <span className="font-medium">{currentDate}</span>

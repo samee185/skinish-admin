@@ -44,9 +44,9 @@ const Dashboard = () => {
     ]);
 
     setOrdersData([
-      { name: "Completed", value: 500 },
-      { name: "Pending", value: 200 },
-      { name: "Cancelled", value: 100 },
+      { name: "Completed", value: 495 },
+      { name: "Pending", value: 22 },
+      { name: "Cancelled", value: 33 },
     ]);
   }, []);
 
@@ -54,12 +54,12 @@ const Dashboard = () => {
   console.log(user?.firstName)
 
   return (
-    <div className="p-2 space-y-6 bg-[#fdf9f9]">
+    <div className="px-6 py-4 space-y-6 bg-[#fdf9f9]">
       {/* Header */}
-      <p className="text-[#663333] text-lg px-8 capitalize">Welcome back, <span className="font-bold">{user?.firstName}</span></p>
+      <p className="text-[#663333] text-lg capitalize">Welcome back, <span className="font-bold">{user?.firstName}</span></p>
 
       {/* Stats Row */}
-      <div className="flex items-center justify-center flex-wrap lg:flex-nowrap gap-6">
+      <div className="flex items-center justify-between flex-wrap lg:flex-nowrap gap-6">
         <DashboardCard
           cardImg={<CurrencyDollarIcon className="h-7 w-7" />}
           title="Total Sales"
@@ -81,7 +81,7 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales Chart */}
         <div className="p-6 bg-white rounded-2xl shadow-md border border-[#ffe1f0]">
           <h2 className="text-lg font-semibold text-[#663333] mb-4">

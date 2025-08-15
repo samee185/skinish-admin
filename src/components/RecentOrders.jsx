@@ -40,7 +40,7 @@ const RecentOrders = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow">
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left border-collapse">
           <thead>
