@@ -1,9 +1,16 @@
-import { useContext } from "react";
-import { useUser } from "../contexts/UserContext"; 
+import { useState } from "react";
+import { useUser } from "../contexts/UserContext";
 import { FaUserCircle } from "react-icons/fa";
+import EditProfileModal from "../components/EditProfileModal"; // import modal
 
 const UserProfile = () => {
-  const { userProfile } = useUser()
+  const { userProfile, updateUserProfile } = useUser();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSave = (updatedData) => {
+    updateUserProfile(updatedData); // calls your context API
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-pink-100 py-12 px-4">
@@ -14,7 +21,7 @@ const UserProfile = () => {
             {userProfile?.profilePicture ? (
               <img
                 src={userProfile.profilePicture}
-                alt={userProfile.name}
+                alt={`${userProfile?.firstName} ${userProfile?.lastName}`}
                 className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
               />
             ) : (
@@ -27,9 +34,14 @@ const UserProfile = () => {
         <div className="pt-16 pb-10 px-6 md:px-10 flex flex-col md:flex-row gap-10">
           {/* Left Column */}
           <div className="md:w-1/3 text-center md:text-left">
-            <h2 className="text-2xl font-bold text-[#663333]">{userProfile?.name}</h2>
-            <p className="text-gray-500 mt-1">{userProfile?.role || "User"}</p>
-            <button className="mt-6 w-full md:w-auto bg-[#663333] hover:bg-[#4d2626] text-white py-2 px-6 rounded-lg font-medium transition shadow-md hover:shadow-lg">
+            <h2 className="text-2xl font-bold text-[#663333] capitalize">
+              {userProfile?.firstName} {userProfile?.lastName}
+            </h2>
+            <p className="text-gray-500 mt-1 capitalize">{userProfile?.role || "User"}</p>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="mt-6 w-full md:w-auto bg-[#663333] hover:bg-[#4d2626] text-white py-2 px-6 rounded-lg font-medium transition shadow-md hover:shadow-lg"
+            >
               Edit Profile
             </button>
           </div>
@@ -41,11 +53,23 @@ const UserProfile = () => {
             <ProfileField label="Address" value={userProfile?.address || "Not provided"} />
             <ProfileField
               label="Joined"
-              value={userProfile?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
+              value={
+                userProfile?.dateJoined
+                  ? new Date(userProfile.dateJoined).toLocaleDateString()
+                  : "—"
+              }
             />
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        user={userProfile}
+        onSave={handleSave}
+      />
     </div>
   );
 };
