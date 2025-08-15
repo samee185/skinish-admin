@@ -55,8 +55,8 @@ const ProductProvider = ({ children }) => {
     requestData.append("description", product.description);
     requestData.append("price", product.price);
     requestData.append("countInStock", product.countInStock);
-    requestData.append("bestseller", product.bestseller);
-    requestData.append("featured", product.isFeatured);
+    requestData.append("bestseller", product.bestseller === true ? "true" : "false");
+    requestData.append("isFeatured", product.featured === true ? "true" : "false");
     // requestData.append("images", product.images);
     for (let i = 0; i < product.images.length; i++) {
       requestData.append('images', product.images[i]);

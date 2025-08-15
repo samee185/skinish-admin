@@ -190,18 +190,39 @@ const AddProductForm = () => {
                   <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2" stroke="#663333" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" fill="#b2f7ef"/></svg>
                   Images
                 </label>
-                <input
-                  id="images"
-                  type="file"
-                  name="images"
-                  multiple
-                  onChange={(event) => {
-                    setFieldValue("images", event.currentTarget.files);
-                  }}
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md"
-                  aria-describedby="images-error"
-                />
+                <div className="relative w-full">
+                  <label htmlFor="images" className="flex flex-col items-center justify-center border-2 border-dashed border-[#e0c3fc] rounded-xl px-5 py-8 bg-white cursor-pointer transition-all hover:border-[#b2f7ef] hover:bg-[#f7e6ff] focus-within:border-[#663333]">
+                    <svg width="36" height="36" fill="none" viewBox="0 0 24 24" className="mb-2 text-[#b2f7ef]"><path d="M12 16v-4m0 0V8m0 4h4m-4 0H8" stroke="#b2f7ef" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="7" width="18" height="10" rx="2" stroke="#e0c3fc" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" fill="#b2f7ef"/></svg>
+                    <span className="text-[#663333] font-medium">Click or drag images here to upload</span>
+                    <span className="text-xs text-gray-400 mt-1">(You can select multiple images)</span>
+                    <input
+                      id="images"
+                      type="file"
+                      name="images"
+                      multiple
+                      onChange={(event) => {
+                        setFieldValue("images", event.currentTarget.files);
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      aria-describedby="images-error"
+                    />
+                  </label>
+                </div>
                 <ErrorMessage name="images" component="div" className="text-red-500 text-sm mt-1" id="images-error" />
+                {/* Image Preview */}
+                {values.images && values.images.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-4">
+                    {Array.from(values.images).map((file, idx) => (
+                      <div key={idx} className="w-24 h-24 rounded-lg overflow-hidden border border-[#e0c3fc] shadow-sm bg-[#fff7fa] flex items-center justify-center">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={file.name}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Description */}
