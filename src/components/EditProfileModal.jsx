@@ -45,19 +45,18 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
             </button>
 
             {/* Header */}
-            <h2 className="text-2xl font-bold mb-6">Edit Profile</h2>
+            <h2 className="text-3xl font-bold mb-6 text-[#663333]">Edit Profile</h2>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <p className="text-lg font-semibold">Address: </p>
-              
+            <form onSubmit={handleSubmit} className="space-y-4 text-left">
+              <label className="block font-semibold text-[#663333] mb-1 text-lg">Address</label>
               <input
                 type="text"
-                name="Street"
+                name="street"
                 value={formData.street}
                 onChange={handleChange}
-                placeholder="123 Main St"
-                className="w-full p-3 rounded-lg bg-white/20 focus:outline-none border border-[#663333] placeholder-[#663333]"
+                placeholder="123 Main St."
+                className="w-full p-3 rounded-xl bg-white/20 focus:outline-none border border-[#e0c3fc] placeholder-[#663333] text-base"
               />
               <div className="grid grid-cols-2 gap-4">
                 <input
@@ -66,43 +65,40 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder="City"
-                  className="w-full p-3 rounded-lg bg-white/20 focus:outline-none border border-[#663333] placeholder-[#663333]"
+                  className="w-full p-3 rounded-xl bg-white/20 focus:outline-none border border-[#e0c3fc] placeholder-[#663333] text-base"
                 />
                 <input
                   type="text"
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  placeholder="Any State"
-                  className="w-full p-3 rounded-lg bg-white/20 focus:outline-none border border-[#663333] placeholder-[#663333]"
+                  placeholder="State"
+                  className="w-full p-3 rounded-xl bg-white/20 focus:outline-none border border-[#e0c3fc] placeholder-[#663333] text-base"
                 />
               </div>
-
-              <p className="text-lg font-semibold">Phone Number: </p>
-
+              <label className="block font-semibold text-[#663333] mb-1 text-lg">Phone Number</label>
               <input
                 type="text"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="+234 80 123 4567"
-                className="w-full p-3 rounded-lg bg-white/20 focus:outline-none border border-[#663333] placeholder-[#663333]"
+                className="w-full p-3 rounded-xl bg-white/20 focus:outline-none border border-[#e0c3fc] placeholder-[#663333] text-base"
               />
-
               {/* Actions */}
-              <div className="flex justify-end gap-4 pt-4 text-[#ffe1f0]">
+              <div className="flex justify-center gap-4 pt-4">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-lg bg-[#ffe1f0] text-[#663333] border border-[#663333] hover:font-bold transition"
+                  className="px-6 py-2 rounded-lg bg-[#ffe1f0] text-[#663333] font-bold border border-[#ffe1f0] hover:bg-[#f7e6ff] transition text-lg"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-[#663333] hover:font-bold transition"
+                  className="px-6 py-2 rounded-lg bg-[#b2f7ef] text-[#663333] font-bold border border-[#b2f7ef] hover:bg-[#e0c3fc] transition text-lg"
                 >
-                  Save Changes
+                  SAVE CHANGES
                 </button>
               </div>
             </form>

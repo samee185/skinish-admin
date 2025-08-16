@@ -88,7 +88,6 @@ const ProductProvider = ({ children }) => {
   };
 
   const deleteProduct = async (productId) => {
-    
     setLoading(true);
     try {
       const response = await axios.delete(`${apiUrl}/products/${productId}`, {
@@ -97,11 +96,10 @@ const ProductProvider = ({ children }) => {
         },
       });
       if (response.status === 204) {
-        // toast.success("Product deleted successfully");
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product._id !== productId)
         );
-
+        toast.success("Product deleted successfully");
       }
     } catch (err) {
       console.error("Error deleting product:", err.message);
