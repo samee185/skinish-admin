@@ -2,7 +2,7 @@ import React from 'react'
 
 const Orders = () => {
   return (
-    <div>Orders</div>
+    <div className='text-4xl pt-28 text-[#663333] text-center font-bold'> No Orders Yet !</div>
   )
 }
 
