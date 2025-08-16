@@ -1,5 +1,5 @@
 import React from "react";
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from "framer-motion";
 
 const EditProductModal = ({ show, product, onClose }) => {
@@ -17,16 +17,19 @@ const EditProductModal = ({ show, product, onClose }) => {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="bg-white/40 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center border border-[#b2f7ef] text-[#663333] relative"
+            className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center border border-[#b2f7ef] text-[#663333] relative"
           >
             {/* Close Button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-[#663333] hover:text-red-600 transition"
             >
-              <PencilSquareIcon className="w-12 h-12 mt-2 text-[#663333]" />
+              <XMarkIcon className="w-8 h-8 text-[#663333]" />
             </button>
-            <h2 className="text-3xl font-bold mb-6 text-[#663333]">Edit Product</h2>
+            <div className="flex items-center justify-center gap-2 mt-2 mb-6">
+              <PencilSquareIcon className="w-8 h-8 text-[#663333]" />
+              <h2 className="text-3xl font-bold text-[#663333]"> Edit Product</h2>
+            </div>
             <form className="grid grid-cols-1 gap-4 text-left">
               <div>
                 <label className="block font-semibold text-[#663333] mb-1 text-lg">Name</label>

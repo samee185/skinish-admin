@@ -92,13 +92,13 @@ const EditProfileModal = ({ isOpen, onClose, user, onSave }) => {
                   onClick={onClose}
                   className="px-6 py-2 rounded-lg bg-[#ffe1f0] text-[#663333] font-bold border border-[#ffe1f0] hover:bg-[#f7e6ff] transition text-lg"
                 >
-                  CANCEL
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2 rounded-lg bg-[#b2f7ef] text-[#663333] font-bold border border-[#b2f7ef] hover:bg-[#e0c3fc] transition text-lg"
                 >
-                  SAVE CHANGES
+                  Save Changes
                 </button>
               </div>
             </form>
