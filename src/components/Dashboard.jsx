@@ -51,7 +51,7 @@ const Dashboard = () => {
   }, []);
 
   const COLORS = ["#22c55e", "#facc15", "#ef4444"];
-  console.log(user?.firstName)
+//   console.log(user?.firstName)
 
   return (
     <div className="px-6 py-4 space-y-6 bg-[#fdf9f9]">

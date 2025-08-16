@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProduct } from '../contexts/ProductContext';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
@@ -8,8 +8,8 @@ const ProductDetails = () => {
   const { productId } = useParams();
   const { products } = useProduct();
   const navigate = useNavigate();
-  const [showEditModal, setShowEditModal] = React.useState(false);
-  const [editProduct, setEditProduct] = React.useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
 
   const product = products?.find((p) => p._id === productId);
 

@@ -52,7 +52,7 @@ const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/signin");
   };
 
   const values = {
@@ -61,6 +61,7 @@ const AuthProvider = ({ children }) => {
     user,
     login,
     logout,
+    isAuthenticated: !!token,
   };
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

@@ -10,7 +10,7 @@ const Layout = () => {
   const location = useLocation();
 
   // Routes where Navbar & Sidebar should be hidden
-  const hideLayout = location.pathname === "/login";
+  const hideLayout = location.pathname === "/signin";
 
   return (
     <AuthProvider>

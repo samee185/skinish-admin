@@ -26,7 +26,7 @@ const SignIn = () => {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row items-stretch min-h-screen lg:h-[600px]">
+    <div className="flex justify-center flex-col lg:flex-row items-stretch min-h-screen lg:h-[600px] mt-[-100px] lg:mt-0">
       {/* Left Image Section */}
       <div className="hidden lg:flex lg:basis-1/2 relative w-full h-full overflow-hidden ">
         <img src={authImg} alt="auth" className="object-cover w-full h-full" />
@@ -96,7 +96,7 @@ const SignIn = () => {
             >
               {loading ? (
                 <div className="flex justify-center items-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-3 border-gray-400 "></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-3 border-gray-500 "></div>
                 </div>
               ) : (
                 "Login"
