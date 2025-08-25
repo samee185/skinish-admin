@@ -8,7 +8,7 @@ const UserProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSave = (updatedData) => {
-    updateUserProfile(updatedData); // calls your context API
+    updateUserProfile(updatedData); 
     setIsModalOpen(false);
   };
 
@@ -50,9 +50,9 @@ const UserProfile = () => {
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <ProfileField label="Email" value={userProfile?.email} />
             <ProfileField label="Phone" value={userProfile?.phone || "Not provided"} />
-            <ProfileField label="Street Address" value={userProfile?.address.street || "Not provided"} />
-            <ProfileField label="City" value={userProfile?.address.city || "Not provided"} />
-            <ProfileField label="State" value={userProfile?.address.state || "Not provided"} />
+            <ProfileField label="Street Address" value={userProfile?.address?.street || "Not provided"} />
+            <ProfileField label="City" value={userProfile?.address?.city || "Not provided"} />
+            <ProfileField label="State" value={userProfile?.address?.state || "Not provided"} />
             <ProfileField
               label="Joined"
               value={
