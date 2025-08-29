@@ -6,7 +6,7 @@ const DashboardCard = ({ cardImg, title, currentDate, amount, className }) => {
   return (
     <div
       className={clsx(
-        "bg-white w-full lg:w-[280px] p-5 rounded-2xl shadow-lg border border-[#ffe1f0] transition-transform duration-300 hover:scale-[1.03] hover:shadow-xl",
+        "bg-white w-full lg:w-[300px] p-5 rounded-2xl shadow-lg border border-[#ffe1f0] transition-transform duration-300 hover:scale-[1.03] hover:shadow-xl",
         className
       )}
     >
