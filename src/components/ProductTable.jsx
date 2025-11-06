@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useProduct } from "../contexts/ProductContext"; 
 import {
   TrashIcon,
@@ -10,6 +10,7 @@ import EditProductModal from "./EditProductModal";
 
 const ProductTable = () => {
   const { products, deleteProduct, updateProduct } = useProduct();
+  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = React.useState(false);
   const [selectedProductId, setSelectedProductId] = React.useState(null);
   const [showEditModal, setShowEditModal] = React.useState(false);
@@ -48,6 +49,17 @@ const ProductTable = () => {
     setEditProduct(null);
   };
 
+  const filteredProducts = useMemo(() => {
+    const list = products || [];
+    if (!searchTerm) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter((product) => {
+      const name = (product?.name || "").toString().toLowerCase();
+      const sku = (product?.sku || "").toString().toLowerCase();
+      return name.includes(q) || sku.includes(q);
+    });
+  }, [products, searchTerm]);
+
   return (
     <>
       <div className="container text-[#663333] mx-auto p-4">
@@ -58,6 +70,25 @@ const ProductTable = () => {
           </span>
         </h1>
         <div className="overflow-x-auto rounded-2xl shadow-2xl border border-[#f3d6e3] bg-gradient-to-br from-[#fff7fa] via-[#ffe1f0] to-[#f7e6ff]">
+          <div className="p-4 flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Search by name or SKU..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-96 border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-sm text-[#663333]"
+              />
+            </div>
+            <div>
+              <button
+                onClick={() => setSearchTerm("")}
+                className="px-4 py-2 bg-[#ffe1f0] text-[#663333] rounded-lg border border-[#ffe1f0] hover:bg-[#f7e6ff] transition text-sm"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
           <table className="min-w-full bg-white/90 rounded-2xl text-sm">
             <thead>
               <tr className="w-full bg-gradient-to-r from-[#ffe1f0] via-[#e0c3fc] to-[#b2f7ef] text-left text-xs">
@@ -73,8 +104,8 @@ const ProductTable = () => {
               </tr>
             </thead>
             <tbody>
-              {products?.length > 0 ? (
-                products.map((product) => (
+              {filteredProducts?.length > 0 ? (
+                filteredProducts.map((product) => (
                   <tr key={product._id} className="border-b hover:bg-[#f7e6ff] transition-all text-sm">
                     <td className="py-2 px-4">
                       <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-[#e0c3fc] shadow-md bg-[#fff7fa] flex items-center justify-center">
@@ -118,7 +149,7 @@ const ProductTable = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center py-8 text-[#663333] font-semibold text-sm">
+                  <td colSpan="9" className="text-center py-8 text-[#663333] font-semibold text-sm">
                     No products available.
                   </td>
                 </tr>
