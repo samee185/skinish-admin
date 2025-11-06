@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import EditProductModal from "./EditProductModal";
 
 const ProductTable = () => {
-  const { products, deleteProduct } = useProduct();
+  const { products, deleteProduct, updateProduct } = useProduct();
   const [showModal, setShowModal] = React.useState(false);
   const [selectedProductId, setSelectedProductId] = React.useState(null);
   const [showEditModal, setShowEditModal] = React.useState(false);
@@ -62,6 +62,7 @@ const ProductTable = () => {
             <thead>
               <tr className="w-full bg-gradient-to-r from-[#ffe1f0] via-[#e0c3fc] to-[#b2f7ef] text-left text-xs">
                 <th className="py-3 px-4 border-b font-bold text-[#663333]">Image</th>
+                <th className="py-3 px-4 border-b font-bold text-[#663333]">SKU</th>
                 <th className="py-3 px-4 border-b font-bold text-[#663333]">Name</th>
                 <th className="py-3 px-4 border-b font-bold text-[#663333]">Brand</th>
                 <th className="py-3 px-4 border-b font-bold text-[#663333]">Category</th>
@@ -84,6 +85,7 @@ const ProductTable = () => {
                         />
                       </div>
                     </td>
+                    <td className="py-2 px-4 font-semibold text-[#663333] max-w-[120px] truncate" title={product?.sku}>{product?.sku}</td>
                     <td className="py-2 px-4 font-semibold text-[#663333] max-w-[120px] truncate" title={product?.name}>{product?.name}</td>
                     <td className="py-2 px-4 text-[#663333] max-w-[100px] truncate" title={product?.brand}>{product?.brand}</td>
                     <td className="py-2 px-4 text-[#663333] max-w-[100px] truncate" title={product?.category}>{product?.category}</td>
@@ -152,7 +154,20 @@ const ProductTable = () => {
         </div>
       )}
       {/* Edit Product Modal */}
-      <EditProductModal show={showEditModal} product={editProduct} onClose={handleCloseEditModal} />
+      <EditProductModal 
+        show={showEditModal} 
+        product={editProduct} 
+        onClose={handleCloseEditModal}
+        onUpdate={(updatedProduct) => {
+          updateProduct(editProduct._id, updatedProduct)
+            .then(() => {
+              handleCloseEditModal();
+            })
+            .catch((error) => {
+              console.error('Error updating product:', error);
+            });
+        }}
+      />
     </>
   );
 };

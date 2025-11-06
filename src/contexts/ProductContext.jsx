@@ -111,13 +111,109 @@ const ProductProvider = ({ children }) => {
     }
   };
 
+  const updateProduct = async (productId, updatedData) => {
+    setLoading(true);
+    try {
+      // First, let's handle the basic product data
+      const productData = {
+        name: String(updatedData.name || '').trim(),
+        brand: String(updatedData.brand || '').trim(),
+        category: Array.isArray(updatedData.category) 
+          ? updatedData.category 
+          : [String(updatedData.category || '').trim()], // Convert single category to array
+        description: String(updatedData.description || '').trim(),
+        price: Number(updatedData.price),
+        discountedPrice: Number(updatedData.discountedPrice || 0),
+        countInStock: Number(updatedData.countInStock),
+        bestSeller: Boolean(updatedData.bestSeller),
+        isFeatured: Boolean(updatedData.isFeatured),
+        size: String(updatedData.size || '').trim()
+      };
+
+      // Validate required fields
+      const requiredFields = ['name', 'description', 'category', 'brand', 'price', 'countInStock', 'size'];
+      const missingFields = requiredFields.filter(field => !productData[field] && productData[field] !== 0);
+      
+      if (missingFields.length > 0) {
+        throw new Error(`Required fields missing: ${missingFields.join(', ')}`);
+      }
+
+      let requestConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      };
+
+      // If there's a new image, use FormData
+      if (updatedData.images && updatedData.images[0]?.startsWith('data:image')) {
+        const formData = new FormData();
+        
+        // Append all product data to FormData
+        Object.keys(productData).forEach(key => {
+          formData.append(key, productData[key]);
+        });
+
+        // Handle image
+        const response = await fetch(updatedData.images[0]);
+        const blob = await response.blob();
+        formData.append('images', blob, 'image.jpg');
+
+        requestConfig = {
+          ...requestConfig,
+          headers: {
+            ...requestConfig.headers,
+            'Content-Type': 'multipart/form-data'
+          }
+        };
+
+        // Use formData as the request body
+        requestConfig.data = formData;
+      } else {
+        // If no new image, send as JSON
+        requestConfig = {
+          ...requestConfig,
+          headers: {
+            ...requestConfig.headers,
+            'Content-Type': 'application/json'
+          },
+          data: productData
+        };
+      }
+
+      const response = await axios({
+        method: 'put',
+        url: `${apiUrl}/products/${productId}`,
+        ...requestConfig
+      });
+      
+      if (response.status === 200) {
+        setProducts(prevProducts =>
+          prevProducts.map(product =>
+            product._id === productId ? { ...product, ...response.data.data } : product
+          )
+        );
+        toast.success(response.data.message || "Product updated successfully");
+        return response.data.data;
+      }
+    } catch (err) {
+      console.error("Error updating product:", err.message);
+      err.response?.data?.message
+        ? toast.error(err.response.data.message)
+        : toast.error("An error occurred while updating the product");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const values = {
     products,
     setProducts,
     loading,
     setLoading,
     createNewProduct,
-    deleteProduct, 
+    deleteProduct,
+    updateProduct
   };
 
   return (
