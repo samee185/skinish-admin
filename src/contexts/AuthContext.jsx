@@ -47,12 +47,26 @@ const AuthProvider = ({ children }) => {
         setLoading(false);
       });
   };
-  const logout = () => {
+  const logout = async () => {
+    try {
+    await axios.post(`${apiUrl}/auth/logout`, {}, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    toast.success("Logout Successful");
+  } catch (err) {
+    console.error("Logout error:", err);
+    toast.error("Logout request failed. Logging out locally.");
+  } finally {
+    
     setToken(null);
     setUser(null);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/signin");
+    navigate("/login");
+  }
   };
 
   const values = {
