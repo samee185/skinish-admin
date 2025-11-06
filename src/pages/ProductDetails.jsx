@@ -6,7 +6,7 @@ import EditProductModal from '../components/EditProductModal';
 
 const ProductDetails = () => {
   const { productId } = useParams();
-  const { products } = useProduct();
+  const { products, updateProduct } = useProduct();
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
@@ -68,7 +68,21 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-      <EditProductModal show={showEditModal} product={editProduct} onClose={handleCloseEditModal} />
+      <EditProductModal 
+        show={showEditModal} 
+        product={editProduct} 
+        onClose={handleCloseEditModal}
+        onUpdate={(updatedProduct) => {
+          // call context updateProduct and close modal on success
+          updateProduct(product._id, updatedProduct)
+            .then(() => {
+              handleCloseEditModal();
+            })
+            .catch((err) => {
+              console.error('Error updating product from details page:', err);
+            });
+        }}
+      />
     </div>
   );
 };

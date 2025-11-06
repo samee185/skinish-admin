@@ -15,7 +15,8 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
     countInStock: product?.countInStock || 0,
     description: product?.description || '',
     isFeatured: product?.isFeatured || false,
-    bestSeller: product?.bestSeller || false,
+    // initialize from either `bestSeller` or backend `bestseller` field
+    bestSeller: product?.bestSeller ?? product?.bestseller ?? false,
     size: product?.size || ''
   });
 
@@ -30,7 +31,7 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
         countInStock: product.countInStock || '',
         description: product.description || '',
         isFeatured: product.isFeatured || false,
-        bestSeller: product.bestSeller || false,
+        bestSeller: product.bestSeller ?? product.bestseller ?? false,
         size: product.size || ''
       });
       setImagePreview(product.images?.[0] || null);

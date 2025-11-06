@@ -51,7 +51,13 @@ const ProductProvider = ({ children }) => {
     const requestData = new FormData();
     requestData.append("name", product.name);
     requestData.append("brand", product.brand);
-    requestData.append("category", product.category);
+    if (Array.isArray(product.category)) {
+      for (let i = 0; i < product.category.length; i++) {
+        requestData.append('category', product.category[i]);
+      }
+    } else {
+      requestData.append("category", product.category);
+    }
     requestData.append("description", product.description);
     requestData.append("price", product.price);
     requestData.append("countInStock", product.countInStock);
@@ -66,7 +72,6 @@ const ProductProvider = ({ children }) => {
     axios
       .post(`${apiUrl}/products`, requestData, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       })
@@ -125,7 +130,8 @@ const ProductProvider = ({ children }) => {
         price: Number(updatedData.price),
         discountedPrice: Number(updatedData.discountedPrice || 0),
         countInStock: Number(updatedData.countInStock),
-        bestSeller: Boolean(updatedData.bestSeller),
+        // backend expects `bestseller` (lowercase); accept both incoming spellings
+        bestseller: Boolean(updatedData.bestSeller ?? updatedData.bestseller),
         isFeatured: Boolean(updatedData.isFeatured),
         size: String(updatedData.size || '').trim()
       };
@@ -144,56 +150,53 @@ const ProductProvider = ({ children }) => {
         }
       };
 
-      // If there's a new image, use FormData
+      // If there's a new image, use FormData. Otherwise send JSON.
+      let response;
       if (updatedData.images && updatedData.images[0]?.startsWith('data:image')) {
         const formData = new FormData();
-        
-        // Append all product data to FormData
-        Object.keys(productData).forEach(key => {
+
+        // Append scalar fields
+        Object.keys(productData).forEach((key) => {
+          if (key === 'category') return; // handle category separately
           formData.append(key, productData[key]);
         });
 
-        // Handle image
-        const response = await fetch(updatedData.images[0]);
-        const blob = await response.blob();
+        // Append category as repeated fields so backend receives an array
+        if (Array.isArray(productData.category)) {
+          productData.category.forEach((cat) => formData.append('category', cat));
+        }
+
+        // Handle image (base64 -> blob)
+        const imgResp = await fetch(updatedData.images[0]);
+        const blob = await imgResp.blob();
         formData.append('images', blob, 'image.jpg');
 
-        requestConfig = {
-          ...requestConfig,
+        // Send FormData without forcing Content-Type (axios will set boundary)
+        response = await axios.put(`${apiUrl}/products/${productId}`, formData, {
           headers: {
-            ...requestConfig.headers,
-            'Content-Type': 'multipart/form-data'
-          }
-        };
-
-        // Use formData as the request body
-        requestConfig.data = formData;
+            Authorization: `Bearer ${token}`,
+          },
+        });
       } else {
-        // If no new image, send as JSON
-        requestConfig = {
-          ...requestConfig,
+        // No new image: send JSON body. Ensure category is an array.
+        response = await axios.put(`${apiUrl}/products/${productId}`, productData, {
           headers: {
-            ...requestConfig.headers,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          data: productData
-        };
+        });
       }
-
-      const response = await axios({
-        method: 'put',
-        url: `${apiUrl}/products/${productId}`,
-        ...requestConfig
-      });
       
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
+        // backend returns the updated product in response.data.data or response.data.product
+        const updated = response.data.data || response.data.product || response.data;
         setProducts(prevProducts =>
           prevProducts.map(product =>
-            product._id === productId ? { ...product, ...response.data.data } : product
+            product._id === productId ? { ...product, ...updated } : product
           )
         );
         toast.success(response.data.message || "Product updated successfully");
-        return response.data.data;
+        return updated;
       }
     } catch (err) {
       console.error("Error updating product:", err.message);
