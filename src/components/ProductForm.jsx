@@ -9,9 +9,13 @@ const AddProductForm = () => {
     brand: "",
     category: "",
     price: "",
+    discountedPrice: "",
     countInStock: "",
     featured: false,
     bestseller: false,
+    sku: "",
+    size: "",
+    target: "",
     images: [],
     description: "",
   };
@@ -28,11 +32,20 @@ const AddProductForm = () => {
       .typeError("Price must be a number")
       .positive("Price must be greater than 0")
       .required("Price is required"),
+    discountedPrice: Yup.number()
+      .typeError("Discounted price must be a number")
+      .min(0, "Discounted price cannot be negative")
+      .max(Yup.ref("price"), "Discounted price cannot exceed original price")
+      .nullable()
+      .transform((value, originalValue) => (originalValue === "" ? null : value)),
     countInStock: Yup.number()
       .typeError("Stock count must be a number")
       .integer("Stock must be a whole number")
       .min(0, "Stock cannot be negative")
       .required("Stock count is required"),
+    sku: Yup.string().required("SKU is required"),
+    size: Yup.string().required("Size is required"),
+    target: Yup.string().required("Target audience is required"),
     images: Yup.mixed().test(
       "fileRequired",
       "At least one image is required",
@@ -75,10 +88,6 @@ const AddProductForm = () => {
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#663333] tracking-tight flex items-center justify-center gap-2">
             <span>Add New Product</span>
-            <span className="inline-block align-middle">
-              {/* Product SVG icon */}
-              <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><path d="M3 7.5V17a2.5 2.5 0 002.5 2.5h13A2.5 2.5 0 0021 17V7.5" stroke="#663333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="4.5" width="18" height="3" rx="1.5" fill="#ffe1f0" stroke="#663333" strokeWidth="1.5"/></svg>
-            </span>
           </h2>
           <p className="text-gray-500 mt-2 text-base font-medium">
             Fill in the details below to add a new product to your store.
@@ -99,62 +108,55 @@ const AddProductForm = () => {
             <Form className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Name */}
               <div className="col-span-1 md:col-span-2">
-                <label htmlFor="name" className="font-semibold text-[#663333] mb-2 flex items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 17v-6m0 0V7m0 4h4m-4 0H8" stroke="#663333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  Name
-                </label>
+                <label htmlFor="name" className="font-semibold text-[#663333] mb-2">Name</label>
                 <Field
                   id="name"
                   name="name"
                   placeholder="Product name"
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="name" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
+              {/* SKU */}
+              <div>
+                <label htmlFor="sku" className="font-semibold text-[#663333] mb-2">SKU</label>
+                <Field
+                  id="sku"
+                  name="sku"
+                  placeholder="Product SKU"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
+                />
+                <ErrorMessage name="sku" component="div" className="text-red-500 text-sm mt-1" />
+              </div>
+
               {/* Brand */}
               <div>
-                <label htmlFor="brand" className="font-semibold text-[#663333] mb-2 flex items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#663333" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                  Brand
-                </label>
+                <label htmlFor="brand" className="font-semibold text-[#663333] mb-2">Brand</label>
                 <Field
                   id="brand"
                   name="brand"
                   placeholder="Brand name"
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="brand" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
-              {/* Category */}
+              {/* Category (input) */}
               <div>
-                <label htmlFor="category" className="flex font-semibold text-[#663333] mb-2 items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke="#663333" strokeWidth="1.5"/></svg>
-                  Category
-                </label>
+                <label htmlFor="category" className="font-semibold text-[#663333] mb-2">Category</label>
                 <Field
-                  as="select"
                   id="category"
                   name="category"
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md"
-                >
-                  <option value="" disabled>Select category</option>
-                  <option value="Face">Face</option>
-                  <option value="Asian">Asian</option>
-                  <option value="Body and Bath">Body and Bath</option>
-                  <option value="Cleanser and Toners">Cleanser and Toners</option>
-                  <option value="Haircare">Haircare</option>
-                </Field>
+                  placeholder="Category"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
+                />
                 <ErrorMessage name="category" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
               {/* Price */}
               <div>
-                <label htmlFor="price" className="font-semibold text-[#663333] mb-2 flex items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M12 6v12m0 0c-2.5 0-4.5-2-4.5-4.5S9.5 9 12 9s4.5 2 4.5 4.5S14.5 18 12 18z" stroke="#663333" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                  Price
-                </label>
+                <label htmlFor="price" className="font-semibold text-[#663333] mb-2">Price (₦)</label>
                 <Field
                   id="price"
                   name="price"
@@ -162,37 +164,69 @@ const AddProductForm = () => {
                   min="0"
                   step="0.01"
                   placeholder="₦0.00"
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="price" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
+              {/* Discounted Price */}
+              <div>
+                <label htmlFor="discountedPrice" className="font-semibold text-[#663333] mb-2">Discounted Price (₦)</label>
+                <Field
+                  id="discountedPrice"
+                  name="discountedPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Leave empty if no discount"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
+                />
+                <ErrorMessage name="discountedPrice" component="div" className="text-red-500 text-sm mt-1" />
+              </div>
+
               {/* Count in Stock */}
               <div>
-                <label htmlFor="countInStock" className="font-semibold text-[#663333] mb-2 flex items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3" stroke="#663333" strokeWidth="1.5"/></svg>
-                  Count in Stock
-                </label>
+                <label htmlFor="countInStock" className="font-semibold text-[#663333] mb-2">Count in Stock</label>
                 <Field
                   id="countInStock"
                   name="countInStock"
                   type="number"
                   min="0"
                   placeholder="0"
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="countInStock" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
+              {/* Size */}
+              <div>
+                <label htmlFor="size" className="font-semibold text-[#663333] mb-2">Size</label>
+                <Field
+                  id="size"
+                  name="size"
+                  placeholder="Size "
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
+                />
+                <ErrorMessage name="size" component="div" className="text-red-500 text-sm mt-1" />
+              </div>
+
+              {/* Target */}
+              <div>
+                <label htmlFor="target" className="font-semibold text-[#663333] mb-2">Target </label>
+                <Field
+                  id="target"
+                  name="target"
+                  placeholder="Target (e.g., nourishing, brightening)"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
+                />
+                <ErrorMessage name="target" component="div" className="text-red-500 text-sm mt-1" />
+              </div>
+
               {/* Images */}
               <div className="col-span-1 md:col-span-2">
-                <label htmlFor="images" className="font-semibold text-[#663333] mb-2 flex items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="2" stroke="#663333" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" fill="#b2f7ef"/></svg>
-                  Images
-                </label>
+                <label htmlFor="images" className="font-semibold text-[#663333] mb-2">Images</label>
                 <div className="relative w-full">
-                  <label htmlFor="images" className="flex flex-col items-center justify-center border-2 border-dashed border-[#e0c3fc] rounded-xl px-5 py-8 bg-white cursor-pointer transition-all hover:border-[#b2f7ef] hover:bg-[#f7e6ff] focus-within:border-[#663333]">
-                    <svg width="36" height="36" fill="none" viewBox="0 0 24 24" className="mb-2 text-[#b2f7ef]"><path d="M12 16v-4m0 0V8m0 4h4m-4 0H8" stroke="#b2f7ef" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="7" width="18" height="10" rx="2" stroke="#e0c3fc" strokeWidth="1.5"/><circle cx="8" cy="12" r="2" fill="#b2f7ef"/></svg>
+                  <label htmlFor="images" className="flex flex-col items-center justify-center border-2 border-dashed border-[#e0c3fc] rounded-xl px-5 py-8 bg-white cursor-pointer">
                     <span className="text-[#663333] font-medium">Click or drag images here to upload</span>
                     <span className="text-xs text-gray-400 mt-1">(You can select multiple images)</span>
                     <input
@@ -204,12 +238,10 @@ const AddProductForm = () => {
                         setFieldValue("images", event.currentTarget.files);
                       }}
                       className="absolute inset-0 opacity-0 cursor-pointer"
-                      aria-describedby="images-error"
                     />
                   </label>
                 </div>
-                <ErrorMessage name="images" component="div" className="text-red-500 text-sm mt-1" id="images-error" />
-                {/* Image Preview */}
+                <ErrorMessage name="images" component="div" className="text-red-500 text-sm mt-1" />
                 {values.images && values.images.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-4">
                     {Array.from(values.images).map((file, idx) => (
@@ -227,17 +259,14 @@ const AddProductForm = () => {
 
               {/* Description */}
               <div className="col-span-1 md:col-span-2">
-                <label htmlFor="description" className="font-semibold text-[#663333] mb-2 flex items-center gap-2">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#663333" strokeWidth="1.5"/><path d="M8 10h8M8 14h5" stroke="#663333" strokeWidth="1.2" strokeLinecap="round"/></svg>
-                  Description
-                </label>
+                <label htmlFor="description" className="font-semibold text-[#663333] mb-2">Description</label>
                 <Field
                   as="textarea"
                   id="description"
                   name="description"
                   placeholder="Enter product description..."
                   rows={4}
-                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:border-[#663333] transition-all shadow-sm hover:shadow-md resize-none"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3 resize-none"
                 />
                 <ErrorMessage name="description" component="div" className="text-red-500 text-sm mt-1" />
               </div>
@@ -250,12 +279,8 @@ const AddProductForm = () => {
                     type="checkbox"
                     name="featured"
                     checked={!!values.featured}
-                    className="w-5 h-5 text-[#663333] border-[#e0c3fc] rounded focus:ring-[#b2f7ef] accent-[#b2f7ef]"
                   />
-                  <label htmlFor="featured" className="text-[#663333] font-medium flex items-center gap-1">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" stroke="#663333" strokeWidth="1.2"/></svg>
-                    Featured
-                  </label>
+                  <label htmlFor="featured" className="text-[#663333] font-medium">Featured</label>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Field
@@ -263,12 +288,8 @@ const AddProductForm = () => {
                     type="checkbox"
                     name="bestseller"
                     checked={!!values.bestseller}
-                    className="w-5 h-5 text-[#663333] border-[#e0c3fc] rounded focus:ring-[#b2f7ef] accent-[#b2f7ef]"
                   />
-                  <label htmlFor="bestseller" className="text-[#663333] font-medium flex items-center gap-1">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M12 2v20m10-10H2" stroke="#663333" strokeWidth="1.2"/></svg>
-                    Bestseller
-                  </label>
+                  <label htmlFor="bestseller" className="text-[#663333] font-medium">Bestseller</label>
                 </div>
               </div>
 
@@ -276,20 +297,10 @@ const AddProductForm = () => {
               <div className="col-span-1 md:col-span-2 mt-4">
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-[#ffb6c1] via-[#e0c3fc] to-[#b2f7ef] hover:from-[#e0c3fc] hover:to-[#ffb6c1] text-[#663333] py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] focus:ring-offset-2 flex items-center justify-center gap-2 text-lg"
+                  className="w-full bg-gradient-to-r from-[#ffb6c1] via-[#e0c3fc] to-[#b2f7ef] hover:from-[#e0c3fc] hover:to-[#ffb6c1] text-[#663333] py-3 rounded-xl font-bold transition-all"
                   disabled={isSubmitting || loading}
                 >
-                  {(isSubmitting || loading) ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin" width="22" height="22" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#663333" strokeWidth="2" opacity="0.2"/><path d="M12 2a10 10 0 0110 10" stroke="#663333" strokeWidth="2"/></svg>
-                      Adding...
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="#663333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      Add Product
-                    </span>
-                  )}
+                  {(isSubmitting || loading) ? "Adding..." : "Add Product"}
                 </button>
               </div>
             </Form>

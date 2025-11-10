@@ -50,6 +50,7 @@ const ProductProvider = ({ children }) => {
     console.log("Product in context", product);
     const requestData = new FormData();
     requestData.append("name", product.name);
+    requestData.append("sku", product.sku);
     requestData.append("brand", product.brand);
     if (Array.isArray(product.category)) {
       for (let i = 0; i < product.category.length; i++) {
@@ -60,7 +61,10 @@ const ProductProvider = ({ children }) => {
     }
     requestData.append("description", product.description);
     requestData.append("price", product.price);
+    requestData.append("discountedPrice", product.discountedPrice);
     requestData.append("countInStock", product.countInStock);
+    requestData.append("size", product.size);
+    requestData.append("target", product.target);
     requestData.append("bestseller", product.bestseller === true ? "true" : "false");
     requestData.append("isFeatured", product.featured === true ? "true" : "false");
     // requestData.append("images", product.images);
