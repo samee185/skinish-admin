@@ -127,6 +127,7 @@ const ProductProvider = ({ children }) => {
       const productData = {
         name: String(updatedData.name || '').trim(),
         brand: String(updatedData.brand || '').trim(),
+        sku: String(updatedData.sku || '').trim(),
         category: Array.isArray(updatedData.category) 
           ? updatedData.category 
           : [String(updatedData.category || '').trim()], // Convert single category to array
@@ -137,11 +138,12 @@ const ProductProvider = ({ children }) => {
         // backend expects `bestseller` (lowercase); accept both incoming spellings
         bestseller: Boolean(updatedData.bestSeller ?? updatedData.bestseller),
         isFeatured: Boolean(updatedData.isFeatured),
-        size: String(updatedData.size || '').trim()
+        size: String(updatedData.size || '').trim(),
+        target: String(updatedData.target || '').trim(),
       };
 
       // Validate required fields
-      const requiredFields = ['name', 'description', 'category', 'brand', 'price', 'countInStock', 'size'];
+      const requiredFields = ['name', 'description', 'category', 'brand', 'price', 'countInStock', 'size','sku','target'];
       const missingFields = requiredFields.filter(field => !productData[field] && productData[field] !== 0);
       
       if (missingFields.length > 0) {
@@ -192,7 +194,7 @@ const ProductProvider = ({ children }) => {
       }
       
       if (response.status === 200 || response.status === 201) {
-        // backend returns the updated product in response.data.data or response.data.product
+        
         const updated = response.data.data || response.data.product || response.data;
         setProducts(prevProducts =>
           prevProducts.map(product =>
