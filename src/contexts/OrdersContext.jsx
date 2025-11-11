@@ -10,12 +10,16 @@ export const useOrders = () => useContext(OrderContext);
 export const OrderProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
 
   // Fetch all orders
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/orders"); // replace with your backend endpoint
+      const { data } = await axios.get(`${apiUrl}/orders`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      ); 
       setOrders(data.orders || []);
     } catch (error) {
       console.error("Failed to fetch orders:", error);
@@ -29,7 +33,9 @@ export const OrderProvider = ({ children }) => {
   const updateOrderDeliveryStatus = async (orderId, status) => {
     try {
       setLoading(true);
-      const { data } = await axios.patch(`/api/orders/${orderId}/delivery`, { status });
+      const { data } = await axios.patch(`${apiUrl}/orders/${orderId}`, { status },{
+        headers: { Authorization: `Bearer ${token}` }
+      });
       // Update locally
       setOrders(prev =>
         prev.map(order => (order._id === orderId ? { ...order, deliveryStatus: data.deliveryStatus } : order))
@@ -49,7 +55,9 @@ export const OrderProvider = ({ children }) => {
   const updateOrderPaymentStatus = async (orderId, status) => {
     try {
       setLoading(true);
-      const { data } = await axios.patch(`/api/orders/${orderId}/payment`, { status });
+      const { data } = await axios.patch(`${apiUrl}/orders/${orderId}`, { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       // Update locally
       setOrders(prev =>
         prev.map(order => (order._id === orderId ? { ...order, paymentStatus: data.paymentStatus } : order))
@@ -74,7 +82,9 @@ export const OrderProvider = ({ children }) => {
   const deleteOrder = async (orderId) => {
     try {
       setLoading(true);
-      await axios.delete(`/api/orders/${orderId}`);
+      await axios.delete(`${apiUrl}/orders/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setOrders(prev => prev.filter(order => order._id !== orderId));
       toast.success("Order deleted");
     } catch (error) {
