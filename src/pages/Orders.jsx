@@ -9,7 +9,7 @@ const Orders = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [ordersPerPage] = useState(5);
+  const [ordersPerPage] = useState(20);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   
   useEffect(() => {
@@ -103,7 +103,7 @@ const Orders = () => {
                   <td className="px-4 py-2 border">₦{order.totalAmount.toLocaleString()}</td>
                   <td className="px-4 py-2 border">{order.deliveryStatus}</td>
                   <td className="px-4 py-2 border flex gap-2 items-center">
-                    {['Pending', 'Shipped', 'Delivered'].map(status => (
+                    {[ 'shipped', 'delivered'].map(status => (
                       <button
                         key={status}
                         disabled={updatingOrderId === order._id || order.deliveryStatus === status}

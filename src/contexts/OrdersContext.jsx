@@ -32,26 +32,35 @@ export const OrderProvider = ({ children }) => {
   };
 
   // Update delivery status
-  const updateOrderDeliveryStatus = async (orderId, status) => {
-    try {
-      setLoading(true);
-      const { data } = await axios.patch(`${apiUrl}/orders/${orderId}`, { status },{
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      // Update locally
-      setOrders(prev =>
-        prev.map(order => (order._id === orderId ? { ...order, deliveryStatus: data.deliveryStatus } : order))
-      );
-      toast.success("Delivery status updated");
-      return data;
-    } catch (error) {
-      console.error("Failed to update delivery status:", error);
-      toast.error("Failed to update delivery status");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateOrderDeliveryStatus = async (orderId, deliveryStatus) => {
+  try {
+    setLoading(true);
+    const { data } = await axios.patch(
+      `${apiUrl}/orders/${orderId}`,
+      { deliveryStatus },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const updatedOrder = data.data.order;
+
+    // Update state with new delivery status
+    setOrders(prev =>
+      prev.map(order =>
+        order._id === orderId ? updatedOrder : order
+      )
+    );
+
+    toast.success("Delivery status updated successfully");
+    return updatedOrder;
+  } catch (error) {
+    console.error("Failed to update delivery status:", error);
+    toast.error("Failed to update delivery status");
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Update payment status
   const updateOrderPaymentStatus = async (orderId, status) => {
