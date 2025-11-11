@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useProduct } from "./ProductContext";
 
 const OrderContext = createContext();
 
@@ -12,6 +13,9 @@ export const OrderProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const { products } = useProduct();
+  const adminId = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user"))._id : null;   
 
   // Fetch all orders
   const fetchOrders = async () => {
@@ -105,6 +109,75 @@ export const OrderProvider = ({ children }) => {
       setLoading(false);
     }
   };
+    // Product selection logic
+  const addProduct = (product) => {
+    if (!selectedProducts.some(p => p.productId === product._id)) {
+      setSelectedProducts(prev => [
+        ...prev,
+        {
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          brand: product.brand || "",
+          image: product.image || ""
+        }
+      ]);
+    }
+  };
+  
+  const removeProduct = (index) => {
+    setSelectedProducts(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateQuantity = (index, quantity) => {
+    setSelectedProducts(prev =>
+      prev.map((p, i) => (i === index ? { ...p, quantity } : p))
+    );
+  };
+
+  const calculateTotal = () => {
+    return selectedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
+  };
+const addOrderByAdmin = async (customerInfo, shippingInfo, paymentInfo, onClose) => {
+    if (!customerInfo.name || !customerInfo.email || selectedProducts.length === 0) {
+      toast.error("Please fill all required fields and add at least one product");
+      return;
+    }
+
+    const payload = {
+      user: adminId,
+      customerName: customerInfo.name,
+      customerEmail: customerInfo.email,
+      products: selectedProducts.map(p => ({
+        product: p.productId,
+        name: p.name,
+        price: p.price,
+        quantity: p.quantity,
+        brand: p.brand,
+        image: p.image
+      })),
+      shippingInfo,
+      paymentInfo,
+      totalAmount: calculateTotal()
+    };
+
+    try {
+      setLoading(true);
+      const { data } = await axios.post(`${apiUrl}/orders`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Order added successfully");
+      setOrders(prev => [...prev, data.order]);
+      setSelectedProducts([]);
+      onClose();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add order");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <OrderContext.Provider
@@ -115,6 +188,11 @@ export const OrderProvider = ({ children }) => {
         updateOrderDeliveryStatus,
         updateOrderPaymentStatus,
         addOrder,
+        addOrderByAdmin,
+        addProduct,
+        removeProduct,
+        updateQuantity,
+        calculateTotal,
         deleteOrder
       }}
     >

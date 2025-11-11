@@ -63,13 +63,13 @@ const Orders = () => {
       {/* Filters & Search */}
       <div className="flex items-center gap-4 justify-between">
         <div className="flex flex-wrap gap-4 mb-4 items-center">
-          <input
+          {/* <input
             type="text"
             placeholder="Search by user name or email"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef]"
-          />
+          /> */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -85,7 +85,7 @@ const Orders = () => {
           <div className="text-[#663333] text-2xl font-semibold">
             Total Orders: {filteredOrders.length}
           </div>
-          <span className="bg-[#663333] p-2 text-gray-100 rounded-full shadow-md font-semibold cursor-pointer hover:bg-[#4d2626]">
+          <span className="bg-[#663333] p-2 text-gray-100 rounded-full shadow-md cursor-pointer hover:bg-[#4d2626]">
             Create New Order
           </span>
         </div>
