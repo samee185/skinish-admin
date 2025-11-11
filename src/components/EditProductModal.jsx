@@ -288,3 +288,4 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
 };
 
 export default EditProductModal;
+ 
