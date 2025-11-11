@@ -86,7 +86,8 @@ const Orders = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-2 border">Order ID</th>
-              <th className="px-4 py-2 border">Customer ID</th>
+              <th className="px-4 py-2 border">Customer Name</th>
+              <th className="px-4 py-2 border">Customer Email</th>
               <th className="px-4 py-2 border">Total</th>
               <th className="px-4 py-2 border">Delivery Status</th>
               <th className="px-4 py-2 border">Actions</th>
@@ -97,7 +98,8 @@ const Orders = () => {
               <React.Fragment key={order._id}>
                 <tr className="hover:bg-gray-50">
                   <td className="px-4 py-2 border">{order._id}</td>
-                  <td className="px-4 py-2 border">{order.user || order.user?.email || order.user?._id}</td>
+                  <td className="px-4 py-2 border">{order.customerName}</td>
+                  <td className="px-4 py-2 border">{order.customerEmail}</td>
                   <td className="px-4 py-2 border">₦{order.totalAmount.toLocaleString()}</td>
                   <td className="px-4 py-2 border">{order.deliveryStatus}</td>
                   <td className="px-4 py-2 border flex gap-2 items-center">
