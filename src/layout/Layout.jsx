@@ -5,6 +5,7 @@ import ScrollToTop from "../components/ScrollToTop";
 import ProductProvider from "../contexts/ProductContext";
 import Sidebar from "./Sidebar";
 import UserProvider from "../contexts/UserContext";
+import { OrderProvider } from "../contexts/OrdersContext";
 
 const Layout = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const Layout = () => {
     <AuthProvider>
       <UserProvider>
         <ProductProvider>
+          <OrderProvider>
           <ScrollToTop />
           {hideLayout ? (
             // If layout is hidden, just show the Outlet (page content)
@@ -34,6 +36,7 @@ const Layout = () => {
               </div>
             </>
           )}
+          </OrderProvider>
         </ProductProvider> 
       </UserProvider>
     </AuthProvider>

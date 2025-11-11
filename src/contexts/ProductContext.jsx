@@ -121,99 +121,54 @@ const ProductProvider = ({ children }) => {
   };
 
   const updateProduct = async (productId, updatedData) => {
-    setLoading(true);
-    try {
-      // First, let's handle the basic product data
-      const productData = {
-        name: String(updatedData.name || '').trim(),
-        brand: String(updatedData.brand || '').trim(),
-        sku: String(updatedData.sku || '').trim(),
-        category: Array.isArray(updatedData.category) 
-          ? updatedData.category 
-          : [String(updatedData.category || '').trim()], // Convert single category to array
-        description: String(updatedData.description || '').trim(),
-        price: Number(updatedData.price),
-        discountedPrice: Number(updatedData.discountedPrice || 0),
-        countInStock: Number(updatedData.countInStock),
-        // backend expects `bestseller` (lowercase); accept both incoming spellings
-        bestseller: Boolean(updatedData.bestSeller ?? updatedData.bestseller),
-        isFeatured: Boolean(updatedData.isFeatured),
-        size: String(updatedData.size || '').trim(),
-        target: String(updatedData.target || '').trim(),
-      };
+  setLoading(true);
+  try {
+    let payload;
+    let headers = { Authorization: `Bearer ${token}` };
 
-      // Validate required fields
-      const requiredFields = ['name', 'description', 'category', 'brand', 'price', 'countInStock', 'size','sku','target'];
-      const missingFields = requiredFields.filter(field => !productData[field] && productData[field] !== 0);
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Required fields missing: ${missingFields.join(', ')}`);
-      }
+    // Only use FormData if there are new images
+    if (updatedData.images && updatedData.images[0] instanceof File) {
+      payload = new FormData();
 
-      let requestConfig = {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      };
+      // Append normal fields
+      Object.keys(updatedData).forEach(key => {
+        if (key === "images" || key === "category") return;
+        payload.append(key, updatedData[key]);
+      });
 
-      // If there's a new image, use FormData. Otherwise send JSON.
-      let response;
-      if (updatedData.images && updatedData.images[0]?.startsWith('data:image')) {
-        const formData = new FormData();
+      // Append category array
+      updatedData.category.forEach(cat => payload.append("category", cat));
 
-        // Append scalar fields
-        Object.keys(productData).forEach((key) => {
-          if (key === 'category') return; // handle category separately
-          formData.append(key, productData[key]);
-        });
+      // Append only new images
+      updatedData.images.forEach(file => payload.append("images", file));
 
-        // Append category as repeated fields so backend receives an array
-        if (Array.isArray(productData.category)) {
-          productData.category.forEach((cat) => formData.append('category', cat));
-        }
-
-        // Handle image (base64 -> blob)
-        const imgResp = await fetch(updatedData.images[0]);
-        const blob = await imgResp.blob();
-        formData.append('images', blob, 'image.jpg');
-
-        // Send FormData without forcing Content-Type (axios will set boundary)
-        response = await axios.put(`${apiUrl}/products/${productId}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      } else {
-        // No new image: send JSON body. Ensure category is an array.
-        response = await axios.put(`${apiUrl}/products/${productId}`, productData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-        });
-      }
-      
-      if (response.status === 200 || response.status === 201) {
-        
-        const updated = response.data.data || response.data.product || response.data;
-        setProducts(prevProducts =>
-          prevProducts.map(product =>
-            product._id === productId ? { ...product, ...updated } : product
-          )
-        );
-        toast.success(response.data.message || "Product updated successfully");
-        return updated;
-      }
-    } catch (err) {
-      console.error("Error updating product:", err.message);
-      err.response?.data?.message
-        ? toast.error(err.response.data.message)
-        : toast.error("An error occurred while updating the product");
-      throw err;
-    } finally {
-      setLoading(false);
+      headers["Content-Type"] = "multipart/form-data";
+    } else {
+      // If no new images, just send JSON and preserve old ones
+      payload = { ...updatedData, images: updatedData.images || updatedData.oldImages };
+      headers["Content-Type"] = "application/json";
     }
-  };
+
+    const response = await axios.put(
+      `${apiUrl}/products/${productId}`,
+      payload,
+      { headers }
+    );
+
+    const updated = response.data.data || response.data.product || response.data;
+    setProducts(prev => prev.map(p => p._id === productId ? { ...p, ...updated } : p));
+    toast.success(response.data.message || "Product updated successfully");
+    return updated;
+  } catch (err) {
+    console.error("Error updating product:", err);
+    toast.error(err.response?.data?.message || "Error updating product");
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const values = {
     products,

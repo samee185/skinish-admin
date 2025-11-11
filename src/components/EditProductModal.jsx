@@ -4,12 +4,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
 
 const EditProductModal = ({ show, product, onClose, onUpdate }) => {
+  const [existingImages, setExistingImages] = useState(product?.images || []);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState(product?.images || []);
+  const [imagePreviews, setImagePreviews] = useState([...product?.images || []]);
+
   const [formData, setFormData] = useState({
     name: product?.name || '',
     brand: product?.brand || '',
     category: Array.isArray(product?.category) ? product.category : [],
+    sku: product?.sku || '',
+    target: product?.target || '',
     price: product?.price || 0,
     discountedPrice: product?.discountedPrice || 0,
     countInStock: product?.countInStock || 0,
@@ -25,16 +29,19 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
         name: product.name || '',
         brand: product.brand || '',
         category: Array.isArray(product.category) ? product.category : [],
-        price: product.price || '',
-        discountedPrice: product.discountedPrice || '',
-        countInStock: product.countInStock || '',
+        sku: product.sku || '',
+        target: product.target || '',
+        price: product.price || 0,
+        discountedPrice: product.discountedPrice || 0,
+        countInStock: product.countInStock || 0,
         description: product.description || '',
         isFeatured: product.isFeatured || false,
         bestSeller: product.bestSeller ?? product.bestseller ?? false,
         size: product.size || ''
       });
-      setImagePreviews(product.images || []);
+      setExistingImages(product.images || []);
       setSelectedImages([]);
+      setImagePreviews([...product.images || []]);
     }
   }, [product]);
 
@@ -48,6 +55,24 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
     }
   };
 
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files).slice(0, 6); // max 6
+    setSelectedImages(prev => [...prev, ...files].slice(0, 6));
+    setImagePreviews([...existingImages, ...files.map(f => URL.createObjectURL(f))]);
+  };
+
+  const removeImage = (index, isExisting = false) => {
+    if (isExisting) {
+      const updatedExisting = existingImages.filter((_, i) => i !== index);
+      setExistingImages(updatedExisting);
+      setImagePreviews([...updatedExisting, ...selectedImages.map(f => URL.createObjectURL(f))]);
+    } else {
+      const updatedSelected = selectedImages.filter((_, i) => i !== index);
+      setSelectedImages(updatedSelected);
+      setImagePreviews([...existingImages, ...updatedSelected.map(f => URL.createObjectURL(f))]);
+    }
+  };
+
   const handleImageUpload = async (file) => {
     if (!file) return null;
     return new Promise((resolve, reject) => {
@@ -58,22 +83,43 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
     });
   };
 
-  const handleImagesChange = (e) => {
-    let files = Array.from(e.target.files);
-    // Merge with existing selected images and limit to 6
-    const combinedFiles = [...selectedImages, ...files].slice(0, 6);
-    setSelectedImages(combinedFiles);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // Create previews
-    const previews = combinedFiles.map(file => URL.createObjectURL(file));
-    setImagePreviews(previews);
-  };
+    try {
+      const requiredFields = ['name', 'description', 'category', 'brand', 'price', 'countInStock', 'size', 'sku', 'target'];
+      const emptyFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
+      if (emptyFields.length > 0) {
+        toast.error(`Please fill all required fields: ${emptyFields.join(', ')}`);
+        return;
+      }
 
-  const removeImage = (index) => {
-    const newSelected = selectedImages.filter((_, i) => i !== index);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setSelectedImages(newSelected);
-    setImagePreviews(newPreviews);
+      // Upload new images if any
+      let uploadedImages = [];
+      if (selectedImages.length > 0) {
+        uploadedImages = await Promise.all(selectedImages.map(file => handleImageUpload(file)));
+      }
+
+      const updatedProduct = {
+        ...formData,
+        _id: product._id,
+        oldImages: existingImages, // keep the ones that weren’t removed
+        images: uploadedImages, // newly added images
+        price: Number(formData.price),
+        discountedPrice: Number(formData.discountedPrice || 0),
+        countInStock: Number(formData.countInStock)
+      };
+
+      if (typeof onUpdate === 'function') {
+        await onUpdate(updatedProduct);
+        onClose();
+      } else {
+        console.error('onUpdate prop is not a function');
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error(error.message || 'Error updating product');
+    }
   };
 
   return (
@@ -103,98 +149,62 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
             </div>
 
             <form className="grid grid-cols-1 gap-4 text-left">
-              {/* Name, Brand, Category */}
-              <div>
-                <label className="block font-semibold text-[#663333] mb-1 text-lg">Name</label>
-                <input 
-                  type="text" 
-                  name="name"
-                  value={formData.name} 
-                  onChange={handleChange}
-                  className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#663333] mb-1 text-lg">Brand</label>
-                <input 
-                  type="text" 
-                  name="brand"
-                  value={formData.brand} 
-                  onChange={handleChange}
-                  className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#663333] mb-1 text-lg">Category</label>
-                <input 
-                  type="text" 
-                  name="category"
-                  value={Array.isArray(formData.category) ? formData.category.join(', ') : ''} 
-                  onChange={handleChange}
-                  placeholder="Enter categories separated by commas"
-                  className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                />
-              </div>
+              {/* Name, Brand, SKU, Target, Category */}
+              {['name','brand','sku','target','category'].map(field => (
+                <div key={field}>
+                  <label className="block font-semibold text-[#663333] mb-1 text-lg">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                  <input
+                    type="text"
+                    name={field}
+                    value={field==='category' ? formData.category.join(', ') : formData[field]}
+                    onChange={handleChange}
+                    placeholder={field==='category' ? 'Separate categories with commas' : ''}
+                    className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base"
+                  />
+                </div>
+              ))}
 
               {/* Price & Discounted Price */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-[#663333] mb-1 text-lg">Price</label>
-                  <input 
-                    type="number" 
-                    name="price"
-                    value={formData.price} 
-                    onChange={handleChange}
-                    className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-[#663333] mb-1 text-lg">Discounted Price</label>
-                  <input 
-                    type="number" 
-                    name="discountedPrice"
-                    value={formData.discountedPrice} 
-                    onChange={handleChange}
-                    className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                  />
-                </div>
+                {['price','discountedPrice'].map(field => (
+                  <div key={field}>
+                    <label className="block font-semibold text-[#663333] mb-1 text-lg">{field === 'price' ? 'Price' : 'Discounted Price'}</label>
+                    <input
+                      type="number"
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleChange}
+                      className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base"
+                    />
+                  </div>
+                ))}
               </div>
 
               {/* Stock & Size */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-[#663333] mb-1 text-lg">Stock</label>
-                  <input 
-                    type="number" 
-                    name="countInStock"
-                    value={formData.countInStock} 
-                    onChange={handleChange}
-                    className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-[#663333] mb-1 text-lg">Size</label>
-                  <input 
-                    type="text" 
-                    name="size"
-                    value={formData.size} 
-                    onChange={handleChange}
-                    className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base" 
-                  />
-                </div>
+                {['countInStock','size'].map(field => (
+                  <div key={field}>
+                    <label className="block font-semibold text-[#663333] mb-1 text-lg">{field === 'countInStock' ? 'Stock' : 'Size'}</label>
+                    <input
+                      type={field==='countInStock'?'number':'text'}
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleChange}
+                      className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base"
+                    />
+                  </div>
+                ))}
               </div>
 
               {/* Description */}
               <div>
                 <label className="block font-semibold text-[#663333] mb-1 text-lg">Description</label>
-                <textarea 
+                <textarea
                   name="description"
-                  value={formData.description} 
+                  value={formData.description}
                   onChange={handleChange}
-                  className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] resize-none text-base" 
-                  rows={3} 
+                  className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] resize-none text-base"
+                  rows={3}
                 />
               </div>
 
@@ -213,18 +223,21 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
                           border border-[#e0c3fc] rounded-xl p-2"
                 />
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {imagePreviews.map((src, idx) => (
-                    <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#e0c3fc]">
-                      <img src={src} alt={`preview-${idx}`} className="object-cover w-full h-full" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(idx)}
-                        className="absolute top-0 right-0 w-5 h-5 text-white bg-red-500 rounded-full flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                  {imagePreviews.map((src, idx) => {
+                    const isExisting = idx < existingImages.length;
+                    return (
+                      <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-[#e0c3fc]">
+                        <img src={src} alt={`preview-${idx}`} className="object-cover w-full h-full" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(isExisting ? idx : idx - existingImages.length, isExisting)}
+                          className="absolute top-0 right-0 w-5 h-5 text-white bg-red-500 rounded-full flex items-center justify-center text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -262,42 +275,7 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
               </button>
               <button
                 className="px-6 py-2 rounded-lg bg-[#b2f7ef] text-[#663333] font-bold border border-[#b2f7ef] hover:bg-[#e0c3fc] transition text-lg"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  try {
-                    // Validate required fields
-                    const requiredFields = ['name', 'description', 'category', 'brand', 'price', 'countInStock', 'size'];
-                    const emptyFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
-                    if (emptyFields.length > 0) {
-                      toast.error(`Please fill in all required fields: ${emptyFields.join(', ')}`);
-                      return;
-                    }
-
-                    let updatedImages = product.images || [];
-                    if (selectedImages.length > 0) {
-                      updatedImages = await Promise.all(selectedImages.map(file => handleImageUpload(file)));
-                    }
-
-                    const updatedProduct = {
-                      ...formData,
-                      _id: product._id,
-                      images: updatedImages,
-                      price: Number(formData.price),
-                      discountedPrice: Number(formData.discountedPrice || 0),
-                      countInStock: Number(formData.countInStock)
-                    };
-
-                    if (typeof onUpdate === 'function') {
-                      await onUpdate(updatedProduct);
-                      onClose();
-                    } else {
-                      console.error('onUpdate prop is not a function');
-                    }
-                  } catch (error) {
-                    console.error('Error updating product:', error);
-                    toast.error(error.message || 'Error updating product');
-                  }
-                }}
+                onClick={handleSubmit}
               >
                 Save Changes
               </button>
