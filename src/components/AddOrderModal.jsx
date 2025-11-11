@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { useOrders } from "../context/OrderContext";
-import { useProduct } from "../context/ProductContext";
+import { useOrders } from "../contexts/OrdersContext";
+import { useProduct } from "../contexts/ProductContext";
 
 const AddOrderModal = ({ isOpen, onClose }) => {
   const {
-    selectedProducts,
+    selectedProducts = [],
     addProduct,
     removeProduct,
     updateQuantity,
@@ -13,7 +13,8 @@ const AddOrderModal = ({ isOpen, onClose }) => {
     loading,
   } = useOrders();
 
-  const { products } = useProduct();
+  const { products = [] } = useProduct();
+
   const [customerInfo, setCustomerInfo] = useState({ name: "", email: "" });
   const [shippingInfo, setShippingInfo] = useState({ address: "", city: "", state: "", phone: "" });
   const [paymentInfo, setPaymentInfo] = useState({ method: "", status: "", transactionId: "" });
@@ -21,9 +22,9 @@ const AddOrderModal = ({ isOpen, onClose }) => {
 
   // Filter products based on search term and exclude already selected products
   const filteredProducts = useMemo(() => {
-    return products.filter(
+    return (products || []).filter(
       p =>
-        !selectedProducts.some(sp => sp.productId === p._id) &&
+        !(selectedProducts || []).some(sp => sp.productId === p._id) &&
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [products, selectedProducts, searchTerm]);
@@ -87,23 +88,26 @@ const AddOrderModal = ({ isOpen, onClose }) => {
           className="border p-2 w-full mb-2"
         />
         <div className="max-h-40 overflow-y-auto border p-2 mb-4">
-          {filteredProducts.length === 0 && <p className="text-gray-500">No products found</p>}
-          {filteredProducts.map(p => (
-            <div
-              key={p._id}
-              className="flex justify-between items-center p-1 hover:bg-gray-100 rounded cursor-pointer"
-              onClick={() => addProduct(p)}
-            >
-              <span>{p.name}</span>
-              <span>₦{p.price}</span>
-            </div>
-          ))}
+          {filteredProducts.length === 0 ? (
+            <p className="text-gray-500">No products found</p>
+          ) : (
+            filteredProducts.map(p => (
+              <div
+                key={p._id}
+                className="flex justify-between items-center p-1 hover:bg-gray-100 rounded cursor-pointer"
+                onClick={() => addProduct(p)}
+              >
+                <span>{p.name}</span>
+                <span>₦{p.price.toLocaleString()}</span>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Selected Products */}
         <h3 className="font-semibold mb-2">Selected Products</h3>
-        {selectedProducts.length === 0 && <p className="text-gray-500 mb-2">No products selected</p>}
-        {selectedProducts.map((p, i) => (
+        {(selectedProducts || []).length === 0 && <p className="text-gray-500 mb-2">No products selected</p>}
+        {(selectedProducts || []).map((p, i) => (
           <div key={i} className="flex gap-2 mb-2 items-center border p-2 rounded">
             <input type="text" value={p.name} readOnly className="border p-1 w-1/3 bg-gray-100" />
             <input type="number" min={1} value={p.quantity} onChange={e => updateQuantity(i, Number(e.target.value))} className="border p-1 w-1/6" />

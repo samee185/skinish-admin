@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useOrders } from "../contexts/OrdersContext";
 import { toast } from "react-toastify";
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
+import AddOrderModal from "../components/AddOrderModal";
 
 const Orders = () => {
   const { orders, fetchOrders, updateOrderDeliveryStatus, loading } = useOrders();
@@ -11,7 +12,8 @@ const Orders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [ordersPerPage] = useState(20);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -37,7 +39,6 @@ const Orders = () => {
     }
   };
 
-  // Filtering and Searching
   const filteredOrders = useMemo(() => {
     return orders
       .filter(order =>
@@ -48,7 +49,6 @@ const Orders = () => {
       );
   }, [orders, filterStatus, searchQuery]);
 
-  // Pagination logic
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
@@ -63,13 +63,6 @@ const Orders = () => {
       {/* Filters & Search */}
       <div className="flex items-center gap-4 justify-between">
         <div className="flex flex-wrap gap-4 mb-4 items-center">
-          {/* <input
-            type="text"
-            placeholder="Search by user name or email"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef]"
-          /> */}
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -85,7 +78,10 @@ const Orders = () => {
           <div className="text-[#663333] text-2xl font-semibold">
             Total Orders: {filteredOrders.length}
           </div>
-          <span className="bg-[#663333] p-2 text-gray-100 rounded-full shadow-md cursor-pointer hover:bg-[#4d2626]">
+          <span
+            className="bg-[#663333] p-2 text-gray-100 rounded-full shadow-md cursor-pointer hover:bg-[#4d2626]"
+            onClick={() => setIsModalOpen(true)}
+          >
             Create New Order
           </span>
         </div>
@@ -113,7 +109,7 @@ const Orders = () => {
                   <td className="px-4 py-2 border">₦{order.totalAmount.toLocaleString()}</td>
                   <td className="px-4 py-2 border">{order.deliveryStatus}</td>
                   <td className="px-4 py-2 border flex gap-2 items-center">
-                    {[ 'shipped', 'delivered'].map(status => (
+                    {['shipped', 'delivered'].map(status => (
                       <button
                         key={status}
                         disabled={updatingOrderId === order._id || order.deliveryStatus === status}
@@ -188,6 +184,14 @@ const Orders = () => {
           Next
         </button>
       </div>
+
+      {/* Add Order Modal */}
+      {isModalOpen && (
+        <AddOrderModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
