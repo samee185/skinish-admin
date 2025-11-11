@@ -20,7 +20,9 @@ export const OrderProvider = ({ children }) => {
       const { data } = await axios.get(`${apiUrl}/orders`,
         { headers: { Authorization: `Bearer ${token}` } }
       ); 
-      setOrders(data.orders || []);
+      setOrders(data.data.orders || []);
+      console.log(data);
+      
     } catch (error) {
       console.error("Failed to fetch orders:", error);
       toast.error("Failed to fetch orders");
