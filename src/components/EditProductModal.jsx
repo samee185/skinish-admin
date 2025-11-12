@@ -126,7 +126,7 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
     <AnimatePresence>
       {show && product && (
         <motion.div
-          className="fixed inset-0 flex items-center justify-center bg-[#ffe1f0]/80 backdrop-blur-sm z-50 pt-44 overflow-y-auto capitalize"
+          className="fixed inset-0 flex items-center justify-center bg-[#ffe1f0]/80 backdrop-blur-sm z-50 pt-96 overflow-y-auto capitalize"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
