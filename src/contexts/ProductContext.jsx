@@ -120,43 +120,25 @@ const ProductProvider = ({ children }) => {
     }
   };
 
-  const updateProduct = async (productId, updatedData) => {
+  const updateProduct = async (productId, updatedData, isFormData = false) => {
   setLoading(true);
   try {
-    let payload;
+    let payload = updatedData;
     let headers = { Authorization: `Bearer ${token}` };
 
-    // Only use FormData if there are new images
-    if (updatedData.images && updatedData.images[0] instanceof File) {
-      payload = new FormData();
+    if (isFormData) {
+  delete headers['Content-Type'];
+} else {
+  headers['Content-Type'] = 'application/json';
+}
 
-      // Append normal fields
-      Object.keys(updatedData).forEach(key => {
-        if (key === "images" || key === "category") return;
-        payload.append(key, updatedData[key]);
-      });
 
-      // Append category array
-      updatedData.category.forEach(cat => payload.append("category", cat));
+    const response = await axios.put(`${apiUrl}/products/${productId}`, payload, { headers });
 
-      // Append only new images
-      updatedData.images.forEach(file => payload.append("images", file));
-
-      headers["Content-Type"] = "multipart/form-data";
-    } else {
-      // If no new images, just send JSON and preserve old ones
-      payload = { ...updatedData, images: updatedData.images || updatedData.oldImages };
-      headers["Content-Type"] = "application/json";
-    }
-
-    const response = await axios.put(
-      `${apiUrl}/products/${productId}`,
-      payload,
-      { headers }
-    );
-
+    // Update local state
     const updated = response.data.data || response.data.product || response.data;
     setProducts(prev => prev.map(p => p._id === productId ? { ...p, ...updated } : p));
+
     toast.success(response.data.message || "Product updated successfully");
     return updated;
   } catch (err) {

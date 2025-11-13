@@ -25,7 +25,7 @@ export const OrderProvider = ({ children }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       ); 
       setOrders(data.data.orders || []);
-      console.log(data);
+    //   console.log(data);
       
     } catch (error) {
       console.error("Failed to fetch orders:", error);
