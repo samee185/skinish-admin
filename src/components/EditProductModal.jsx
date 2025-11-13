@@ -15,9 +15,11 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
     countInStock: 0,
     description: '',
     isFeatured: false,
-    bestSeller: false,
+    bestseller: false,
     size: ''
   });
+
+  const [categoryInput, setCategoryInput] = useState('');
 
   // Initialize form when product changes
   useEffect(() => {
@@ -33,17 +35,18 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
         countInStock: product.countInStock || 0,
         description: product.description || '',
         isFeatured: product.isFeatured || false,
-        bestSeller: product.bestSeller ?? product.bestseller ?? false,
+        bestseller: product.bestseller ?? product.bestseller ?? false,
         size: product.size || ''
       });
+      setCategoryInput(Array.isArray(product.category) ? product.category.join(', ') : '');
     }
   }, [product]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     if (name === 'category') {
-      const categories = value.split(',').map(cat => cat.trim()).filter(cat => cat !== '');
-      setFormData(prev => ({ ...prev, [name]: categories }));
+      setCategoryInput(value); 
     } else {
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
@@ -52,23 +55,33 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Convert categoryInput string to array on submit
+    const categories = categoryInput
+      .split(/[\s,]+/) 
+      .map(cat => cat.trim())
+      .filter(cat => cat !== '');
+
+    const updatedFormData = { ...formData, category: categories };
+
+    // Validate required fields
+    const requiredFields = [
+      'name', 'description', 'category', 'brand',
+      'price', 'countInStock', 'size', 'sku', 'target'
+    ];
+
+    const emptyFields = requiredFields.filter(
+      field => !updatedFormData[field] || 
+               (Array.isArray(updatedFormData[field]) && updatedFormData[field].length === 0) ||
+               updatedFormData[field].toString().trim() === ''
+    );
+
+    if (emptyFields.length > 0) {
+      toast.error(`Please fill all required fields: ${emptyFields.join(', ')}`);
+      return;
+    }
+
     try {
-      const requiredFields = [
-        'name', 'description', 'category', 'brand',
-        'price', 'countInStock', 'size', 'sku', 'target'
-      ];
-
-      const emptyFields = requiredFields.filter(
-        (field) => !formData[field] || formData[field].toString().trim() === ''
-      );
-      if (emptyFields.length > 0) {
-        toast.error(`Please fill all required fields: ${emptyFields.join(', ')}`);
-        return;
-      }
-
-      // Send JSON directly — images handled separately
-      await onUpdate(formData, false);
-
+      await onUpdate(updatedFormData, false);
       onClose();
     } catch (error) {
       console.error('Error updating product:', error);
@@ -102,7 +115,7 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
             </div>
 
             <form className="grid grid-cols-1 gap-4 text-left">
-              {['name','brand','sku','target','category'].map(field => (
+              {['name','brand','sku','target'].map(field => (
                 <div key={field}>
                   <label className="block font-semibold text-[#663333] mb-1 text-lg">
                     {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -110,13 +123,24 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
                   <input
                     type="text"
                     name={field}
-                    value={field==='category' ? formData.category.join(', ') : formData[field]}
+                    value={formData[field]}
                     onChange={handleChange}
-                    placeholder={field==='category' ? 'Separate categories with commas' : ''}
                     className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base"
                   />
                 </div>
               ))}
+
+              <div>
+                <label className="block font-semibold text-[#663333] mb-1 text-lg">Category</label>
+                <input
+                  type="text"
+                  name="category"
+                  value={categoryInput} // use raw string
+                  onChange={handleChange}
+                  placeholder="Separate categories with commas or spaces"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#b2f7ef] text-base"
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 {['price','discountedPrice'].map(field => (
@@ -178,9 +202,9 @@ const EditProductModal = ({ show, product, onClose, onUpdate }) => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    id="bestSeller"
-                    name="bestSeller"
-                    checked={formData.bestSeller}
+                    id="bestseller"
+                    name="bestseller"
+                    checked={formData.bestseller}
                     onChange={handleChange}
                     className="w-4 h-4 text-[#b2f7ef] border-[#e0c3fc] rounded focus:ring-[#b2f7ef] mr-2"
                   />
