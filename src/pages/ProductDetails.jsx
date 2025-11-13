@@ -3,13 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useProduct } from '../contexts/ProductContext';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import EditProductModal from '../components/EditProductModal';
-
+import EditProductImagesModal from '../components/EditImageModal';
 const ProductDetails = () => {
   const { productId } = useParams();
-  const { products, updateProduct } = useProduct();
+  const { products, updateProduct, updateProductImages } = useProduct();
+ 
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
+  const [showEditImageModal, setShowEditImageModal] = useState(false);
+  
+
 
   const product = products?.find((p) => p._id === productId);
 
@@ -40,7 +44,24 @@ const ProductDetails = () => {
       <div className="w-full max-w-4xl bg-white/90 shadow-2xl rounded-3xl p-10 md:p-16 relative border border-[#f3d6e3]">
         <div className="flex flex-col md:flex-row gap-12 items-center">
           <div className="w-64 h-64 rounded-2xl overflow-hidden border-2 border-[#e0c3fc] shadow-md bg-[#fff7fa] flex items-center justify-center">
-            <img src={product.images[0]} alt={product.name} className="object-cover w-full h-full" />
+            <div className="relative w-64 h-64 cursor-pointer">
+  <img
+    src={product.images[0]}
+    alt={product.name}
+    className="object-cover w-full h-full rounded-2xl border-2 border-[#e0c3fc] shadow-lg transition-transform transform hover:scale-105"
+    onClick={() => setShowEditImageModal(true)}
+  />
+  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 rounded-2xl pointer-events-none">
+    <div className="flex items-center gap-2 bg-[#b2f7ef] bg-opacity-90 text-[#663333] font-semibold px-3 py-1 rounded-full shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M16.5 3.5l4 4-11 11H5.5v-4L16.5 3.5z" />
+      </svg>
+      <span>Click to Edit Images</span>
+    </div>
+  </div>
+</div>
+
+
           </div>
           <div className="flex-1">
             <h2 className="text-4xl font-extrabold text-[#663333] mb-4 flex items-center gap-3 capitalize">
@@ -73,7 +94,7 @@ const ProductDetails = () => {
         product={editProduct} 
         onClose={handleCloseEditModal}
         onUpdate={(updatedProduct) => {
-          // call context updateProduct and close modal on success
+          
           updateProduct(product._id, updatedProduct)
             .then(() => {
               handleCloseEditModal();
@@ -83,6 +104,17 @@ const ProductDetails = () => {
             });
         }}
       />
+
+      {showEditImageModal && (
+        <EditProductImagesModal
+          show={showEditImageModal}
+          onClose={() => setShowEditImageModal(false)}
+          product={product}
+          onUpdateImages={updateProductImages}
+        />
+      )}
+       
+        
     </div>
   );
 };

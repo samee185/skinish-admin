@@ -120,20 +120,15 @@ const ProductProvider = ({ children }) => {
     }
   };
 
-  const updateProduct = async (productId, updatedData, isFormData = false) => {
+  const updateProduct = async (productId, updatedData) => {
   setLoading(true);
   try {
-    let payload = updatedData;
-    let headers = { Authorization: `Bearer ${token}` };
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    };
 
-    if (isFormData) {
-  delete headers['Content-Type'];
-} else {
-  headers['Content-Type'] = 'application/json';
-}
-
-
-    const response = await axios.put(`${apiUrl}/products/${productId}`, payload, { headers });
+    const response = await axios.put(`${apiUrl}/products/${productId}`, updatedData, { headers });
 
     // Update local state
     const updated = response.data.data || response.data.product || response.data;
@@ -146,9 +141,35 @@ const ProductProvider = ({ children }) => {
     toast.error(err.response?.data?.message || "Error updating product");
     throw err;
   } finally {
+    setLoading(false); 
+  }
+};
+
+const updateProductImages = async (productId, formData) => {
+  setLoading(true);
+  try {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data'
+    };
+
+    const response = await axios.put(`${apiUrl}/products/${productId}/images`, formData, { headers });
+
+    // Update local state
+    const updated = response.data.data;
+    setProducts(prev => prev.map(p => p._id === productId ? { ...p, ...updated } : p));
+
+    toast.success(response.data.message || "Images updated successfully");
+    return updated;
+  } catch (err) {
+    console.error("Error updating images:", err);
+    toast.error(err.response?.data?.message || "Error updating images");
+    throw err;
+  } finally {
     setLoading(false);
   }
 };
+ 
 
 
 
@@ -159,7 +180,8 @@ const ProductProvider = ({ children }) => {
     setLoading,
     createNewProduct,
     deleteProduct,
-    updateProduct
+    updateProduct,
+    updateProductImages 
   };
 
   return (
