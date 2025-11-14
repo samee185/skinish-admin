@@ -25,7 +25,11 @@ const EditProductImagesModal = ({ show, product, onClose, onUpdateImages }) => {
     }
 
     setSelectedImages(prev => [...prev, ...files]);
-    setImagePreviews([...existingImages, ...selectedImages.map(f => URL.createObjectURL(f)), ...files.map(f => URL.createObjectURL(f))]);
+    setImagePreviews([
+      ...existingImages,
+      ...selectedImages.map(f => URL.createObjectURL(f)),
+      ...files.map(f => URL.createObjectURL(f))
+    ]);
   };
 
   const removeImage = (index) => {
@@ -66,35 +70,53 @@ const EditProductImagesModal = ({ show, product, onClose, onUpdateImages }) => {
   return (
     <AnimatePresence>
       {show && (
-        <motion.div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative"
+            exit={{ scale: 0.85, opacity: 0 }}
+            className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-lg"
           >
-            <button onClick={onClose} className="absolute top-3 right-3 text-gray-700 hover:text-red-500">
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-1 rounded-full text-[#663333] hover:text-[#ffe1f0] hover:scale-110 transition"
+            >
               <XMarkIcon className="w-6 h-6" />
             </button>
 
-            <h2 className="text-2xl font-bold mb-4">Edit Product Images</h2>
+            {/* Modal Title */}
+            <h2 className="text-2xl font-bold mb-6 text-center text-[#663333]">Edit Product Images</h2>
 
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileChange}
-              className="mb-4"
-            />
+            {/* File Input */}
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-[#663333] rounded-lg p-4 cursor-pointer hover:border-[#12b262] hover:bg-[#ffe1f0] transition">
+              <span className="text-[#663333]">Click or drag images here (Max 6)</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*,image/avif,image/webp"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
 
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* Image Previews */}
+            <div className="flex flex-wrap gap-3 mt-5 max-h-60 overflow-y-auto pr-2">
               {imagePreviews.map((src, idx) => (
-                <div key={idx} className="relative w-20 h-20 border rounded overflow-hidden">
+                <div
+                  key={idx}
+                  className="relative w-24 h-24 rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform cursor-pointer border border-[#663333]"
+                >
                   <img src={src} alt={`preview-${idx}`} className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => removeImage(idx)}
-                    className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs"
+                    className="absolute top-1 right-1 w-5 h-5 bg-[#663333] text-[#ffe1f0] rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition"
                   >
                     ×
                   </button>
@@ -102,9 +124,10 @@ const EditProductImagesModal = ({ show, product, onClose, onUpdateImages }) => {
               ))}
             </div>
 
+            {/* Submit Button */}
             <button
-              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition"
               onClick={handleSubmit}
+              className="mt-6 w-full bg-[#663333] text-[#ffe1f0] py-3 rounded-xl font-semibold shadow-lg hover:bg-[#ffe1f0] hover:text-[#663333] hover:scale-105 transition-all border border-[#663333]"
             >
               Save Images
             </button>
