@@ -7,7 +7,7 @@ const AddProductForm = () => {
   const initialValues = {
     name: "",
     brand: "",
-    category: "",
+    category: "", // comma-separated
     price: "",
     discountedPrice: "",
     countInStock: "",
@@ -15,14 +15,17 @@ const AddProductForm = () => {
     bestseller: false,
     sku: "",
     size: "",
-    target: "",
+    target: "", // comma-separated
+    ingredients: "", // new field, comma-separated
     images: [],
     description: "",
   };
+
   const { createNewProduct, loading } = useProduct();
   const [formError, setFormError] = React.useState("");
   const [formSuccess, setFormSuccess] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [imageFiles, setImageFiles] = React.useState([]); // local state for preview
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Product name is required"),
@@ -46,6 +49,7 @@ const AddProductForm = () => {
     sku: Yup.string().required("SKU is required"),
     size: Yup.string().required("Size is required"),
     target: Yup.string().required("Target audience is required"),
+    ingredients: Yup.string().required("Ingredients are required"),
     images: Yup.mixed().test(
       "fileRequired",
       "At least one image is required",
@@ -59,21 +63,65 @@ const AddProductForm = () => {
     description: Yup.string().required("Description is required"),
   });
 
-  const handleSubmit = async (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm, setFieldValue }) => {
     setFormError("");
     setFormSuccess("");
     setIsSubmitting(true);
+
     try {
-      // Convert FileList to array if needed
-      let imagesArr = values.images;
-      if (values.images instanceof FileList) {
-        imagesArr = Array.from(values.images);
+      // Convert FileList -> array
+      const imagesArr = values.images && values.images.length ? Array.from(values.images) : [];
+
+      // Convert comma-separated strings -> arrays
+      const categoryArray = values.category
+        ? values.category.split(",").map((c) => c.trim()).filter(Boolean)
+        : [];
+      const targetArray = values.target
+        ? values.target.split(",").map((t) => t.trim()).filter(Boolean)
+        : [];
+      const ingredientsArray = values.ingredients
+        ? values.ingredients.split(",").map((i) => i.trim()).filter(Boolean)
+        : [];
+
+      const discounted = values.discountedPrice === "" || values.discountedPrice === null
+        ? null
+        : Number(values.discountedPrice);
+
+      // Build FormData
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("brand", values.brand);
+      formData.append("sku", values.sku);
+      formData.append("size", values.size);
+      formData.append("description", values.description);
+      formData.append("price", Number(values.price));
+      formData.append("countInStock", Number(values.countInStock));
+      if (discounted !== null) formData.append("discountedPrice", discounted);
+
+      // Arrays: append each item individually
+      categoryArray.forEach((item) => formData.append("category", item));
+      targetArray.forEach((item) => formData.append("target", item));
+      ingredientsArray.forEach((item) => formData.append("ingredients", item));
+
+      // Booleans
+      formData.append("featured", values.featured ? "true" : "false");
+      formData.append("bestseller", values.bestseller ? "true" : "false");
+
+      // Images
+      if (imagesArr.length > 0) {
+        imagesArr.forEach((file) => {
+          formData.append("images", file);
+        });
       }
-      const submitValues = { ...values, images: imagesArr };
-      await createNewProduct(submitValues);
+
+      await createNewProduct(formData);
+
       setFormSuccess("Product added successfully!");
       resetForm();
+      setFieldValue("images", []);
+      setImageFiles([]); // reset preview
     } catch (err) {
+      console.error(err);
       setFormError("Failed to add product. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -83,7 +131,6 @@ const AddProductForm = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-br from-[#ffe1f0] via-[#fff7fa] to-[#f7e6ff]">
       <div className="w-full max-w-3xl bg-white/90 shadow-2xl rounded-3xl p-8 md:p-12 relative border border-[#f3d6e3]">
-        {/* Decorative Accent */}
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-32 h-8 bg-gradient-to-r from-[#ffb6c1] via-[#e0c3fc] to-[#b2f7ef] rounded-full blur-lg opacity-60"></div>
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#663333] tracking-tight flex items-center justify-center gap-2">
@@ -142,16 +189,28 @@ const AddProductForm = () => {
                 <ErrorMessage name="brand" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
-              {/* Category (input) */}
+              {/* Category */}
               <div>
                 <label htmlFor="category" className="font-semibold text-[#663333] mb-2">Category</label>
                 <Field
                   id="category"
                   name="category"
-                  placeholder="Category"
+                  placeholder="Category (comma separated)"
                   className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="category" component="div" className="text-red-500 text-sm mt-1" />
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <label htmlFor="ingredients" className="font-semibold text-[#663333] mb-2">Ingredients</label>
+                <Field
+                  id="ingredients"
+                  name="ingredients"
+                  placeholder="Ingredients (comma separated)"
+                  className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
+                />
+                <ErrorMessage name="ingredients" component="div" className="text-red-500 text-sm mt-1" />
               </div>
 
               {/* Price */}
@@ -204,7 +263,7 @@ const AddProductForm = () => {
                 <Field
                   id="size"
                   name="size"
-                  placeholder="Size "
+                  placeholder="Size"
                   className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="size" component="div" className="text-red-500 text-sm mt-1" />
@@ -212,11 +271,11 @@ const AddProductForm = () => {
 
               {/* Target */}
               <div>
-                <label htmlFor="target" className="font-semibold text-[#663333] mb-2">Target </label>
+                <label htmlFor="target" className="font-semibold text-[#663333] mb-2">Target</label>
                 <Field
                   id="target"
                   name="target"
-                  placeholder="Target (e.g., nourishing, brightening)"
+                  placeholder="Target (comma separated)"
                   className="w-full border border-[#e0c3fc] rounded-xl px-5 py-3"
                 />
                 <ErrorMessage name="target" component="div" className="text-red-500 text-sm mt-1" />
@@ -235,22 +294,20 @@ const AddProductForm = () => {
                       name="images"
                       multiple
                       onChange={(event) => {
-                        setFieldValue("images", event.currentTarget.files);
+                        const files = Array.from(event.currentTarget.files);
+                        setFieldValue("images", files);
+                        setImageFiles(files); // preview
                       }}
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
                   </label>
                 </div>
                 <ErrorMessage name="images" component="div" className="text-red-500 text-sm mt-1" />
-                {values.images && values.images.length > 0 && (
+                {imageFiles.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-4">
-                    {Array.from(values.images).map((file, idx) => (
+                    {imageFiles.map((file, idx) => (
                       <div key={idx} className="w-24 h-24 rounded-lg overflow-hidden border border-[#e0c3fc] shadow-sm bg-[#fff7fa] flex items-center justify-center">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={file.name}
-                          className="object-cover w-full h-full"
-                        />
+                        <img src={URL.createObjectURL(file)} alt={file.name} className="object-cover w-full h-full" />
                       </div>
                     ))}
                   </div>
