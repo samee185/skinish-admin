@@ -7,14 +7,17 @@ import {
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import EditProductModal from "./EditProductModal";
+import EditProductImagesModal from "./EditImageModal";
 
 const ProductTable = () => {
-  const { products, deleteProduct, updateProduct } = useProduct();
+  const { products, deleteProduct, updateProduct, updateProductImages } = useProduct();
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
+  const [showEditImageModal, setShowEditImageModal] = useState(false);
+  const [editImageProduct, setEditImageProduct] = useState(null);
   const navigate = useNavigate();
 
   const handleDeleteClick = (productId) => {
@@ -44,9 +47,19 @@ const ProductTable = () => {
     setShowEditModal(true);
   };
 
+  const handleEditImageClick = (product) => {
+    setEditImageProduct(product);
+    setShowEditImageModal(true);
+  };
+
   const handleCloseEditModal = () => {
     setShowEditModal(false);
     setEditProduct(null);
+  };
+
+  const handleCloseEditImageModal = () => {
+    setShowEditImageModal(false);
+    setEditImageProduct(null);
   };
 
   const filteredProducts = useMemo(() => {
@@ -115,8 +128,20 @@ const ProductTable = () => {
                 filteredProducts.map((product) => (
                   <tr key={product._id} className="border-b hover:shadow-lg hover:scale-[1.02] transition-all text-sm rounded-lg">
                     <td className="py-2 px-4">
-                      <div className="w-14 h-14 rounded-xl overflow-hidden border-2 border-[#e0c3fc] shadow-md bg-[#fff7fa] flex items-center justify-center">
-                        <img src={product?.images[0]} alt={product?.title} className="object-cover w-full h-full" />
+                      <div className="relative w-14 h-14 rounded-xl overflow-hidden border-2 border-[#e0c3fc] shadow-md bg-[#fff7fa] flex items-center justify-center">
+                        <img
+                          src={product?.images[0]}
+                          alt={product?.title}
+                          className="object-cover w-full h-full cursor-pointer"
+                          onClick={() => handleEditImageClick(product)}
+                        />
+                        <button
+                          onClick={() => handleEditImageClick(product)}
+                          className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm hover:scale-105 transition"
+                          title="Edit images"
+                        >
+                          <PencilSquareIcon className="w-4 h-4 text-[#663333]" />
+                        </button>
                       </div>
                     </td>
                     <td className="py-2 px-4 font-semibold text-[#663333] max-w-[120px] truncate" title={product?.sku}>{product?.sku}</td>
@@ -202,6 +227,13 @@ const ProductTable = () => {
             .then(() => handleCloseEditModal())
             .catch((error) => console.error('Error updating product:', error));
         }}
+      />
+      {/* Edit Product Images Modal */}
+      <EditProductImagesModal
+        show={showEditImageModal}
+        product={editImageProduct}
+        onClose={handleCloseEditImageModal}
+        onUpdateImages={updateProductImages}
       />
     </>
   );
