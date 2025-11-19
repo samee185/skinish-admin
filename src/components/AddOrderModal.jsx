@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useOrders } from "../contexts/OrdersContext";
 import { useProduct } from "../contexts/ProductContext";
+import { toast } from "react-toastify";
 
 const AddOrderModal = ({ isOpen, onClose }) => {
   const {
@@ -88,16 +89,19 @@ const AddOrderModal = ({ isOpen, onClose }) => {
           className="border p-2 w-full mb-2"
         />
         <div className="max-h-40 overflow-y-auto border p-2 mb-4">
-          {filteredProducts.length === 0 ? (
+            {filteredProducts.length === 0 ? (
             <p className="text-gray-500">No products found</p>
           ) : (
             filteredProducts.map(p => (
               <div
                 key={p._id}
-                className="flex justify-between items-center p-1 hover:bg-gray-100 rounded cursor-pointer"
-                onClick={() => addProduct(p)}
+                className={`flex justify-between items-center p-1 rounded ${p.countInStock > 0 ? 'hover:bg-gray-100 cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
+                onClick={() => { if (p.countInStock > 0) addProduct(p); else toast.error('Product is out of stock'); }}
               >
-                <span>{p.name}</span>
+                <span className="flex items-center gap-2">
+                  <span>{p.name}</span>
+                  {p.countInStock <= 0 && <span className="text-xs text-red-500 font-semibold">(Out of stock)</span>}
+                </span>
                 <span>₦{p.price.toLocaleString()}</span>
               </div>
             ))

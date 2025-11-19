@@ -111,6 +111,12 @@ export const OrderProvider = ({ children }) => {
   };
     // Product selection logic
   const addProduct = (product) => {
+    // Prevent adding out-of-stock products
+    if (product.countInStock <= 0) {
+      toast.error("This product is out of stock and cannot be added.");
+      return;
+    }
+
     if (!selectedProducts.some(p => p.productId === product._id)) {
       setSelectedProducts(prev => [
         ...prev,
@@ -120,7 +126,9 @@ export const OrderProvider = ({ children }) => {
           price: product.price,
           quantity: 1,
           brand: product.brand || "",
-          image: product.image || ""
+          image: product.image || "",
+          // store available stock snapshot to validate later if needed
+          availableStock: product.countInStock || 0,
         }
       ]);
     }
@@ -132,7 +140,18 @@ export const OrderProvider = ({ children }) => {
 
   const updateQuantity = (index, quantity) => {
     setSelectedProducts(prev =>
-      prev.map((p, i) => (i === index ? { ...p, quantity } : p))
+      prev.map((p, i) => {
+        if (i !== index) return p;
+        const prod = products.find(x => x._id === p.productId) || {};
+        const max = prod.countInStock != null ? prod.countInStock : p.availableStock || Infinity;
+        let newQty = Number(quantity) || 1;
+        if (newQty < 1) newQty = 1;
+        if (newQty > max) {
+          toast.warn(`Only ${max} item(s) available in stock. Quantity has been adjusted.`);
+          newQty = max;
+        }
+        return { ...p, quantity: newQty };
+      })
     );
   };
 
@@ -142,6 +161,18 @@ export const OrderProvider = ({ children }) => {
 const addOrderByAdmin = async (customerInfo, shippingInfo, paymentInfo, onClose) => {
     if (!customerInfo.name || !customerInfo.email || selectedProducts.length === 0) {
       toast.error("Please fill all required fields and add at least one product");
+      return;
+    }
+
+    // Validate quantities against current stock before sending
+    const invalid = selectedProducts.some(p => {
+      const prod = products.find(x => x._id === p.productId);
+      const available = prod ? prod.countInStock : p.availableStock || 0;
+      return p.quantity > available || available <= 0;
+    });
+
+    if (invalid) {
+      toast.error("One or more selected products exceed available stock or are out of stock.");
       return;
     }
 
